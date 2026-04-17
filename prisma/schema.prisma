@@ -1,0 +1,258 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Season {
+  id                   String                 @id @default(cuid())
+  year                 Int                    @unique
+  startsAt             DateTime?
+  endsAt               DateTime?
+  raceWeekends         RaceWeekend[]
+  driverStandings      DriverStanding[]
+  constructorStandings ConstructorStanding[]
+}
+
+model Circuit {
+  id                 String        @id @default(cuid())
+  providerJolpicaId  String?       @unique
+  providerOpenf1Key  Int?          @unique
+  name               String
+  country            String
+  locality           String?
+  lat                Float?
+  lng                Float?
+  raceWeekends       RaceWeekend[]
+}
+
+model Constructor {
+  id                   String                 @id @default(cuid())
+  providerJolpicaId    String?                @unique
+  name                 String                 @unique
+  slug                 String?                @unique
+  logoPath             String?
+  nationality          String?
+  driverStandings      DriverStanding[]
+  constructorStandings ConstructorStanding[]
+  raceResults          RaceResult[]
+  qualifyingResults    QualifyingResult[]
+  sprintResults        SprintResult[]
+}
+
+model Driver {
+  id                  String           @id @default(cuid())
+  providerJolpicaId   String?          @unique
+  code                String?          @unique
+  profileSlug         String?          @unique
+  imagePath           String?
+  heroImagePath       String?
+  firstName           String
+  lastName            String
+  fullName            String
+  permanentNumber     Int?
+  nationality         String?
+  driverStandings     DriverStanding[]
+  raceResults         RaceResult[]
+  qualifyingResults   QualifyingResult[]
+  sprintResults       SprintResult[]
+  laps                Lap[]
+  pitStops            PitStop[]
+}
+
+model RaceWeekend {
+  id                String    @id @default(cuid())
+  seasonId          String
+  circuitId         String
+  providerRaceUrl   String?   @unique
+  round             Int
+  slug              String    @unique
+  name              String
+  officialName      String?
+  country           String?
+  status            String    @default("SCHEDULED")
+  startDate         DateTime?
+  endDate           DateTime?
+  season            Season    @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  circuit           Circuit   @relation(fields: [circuitId], references: [id], onDelete: Cascade)
+  sessions          Session[]
+  raceResults       RaceResult[]
+
+  @@unique([seasonId, round])
+}
+
+model Session {
+  id                 String      @id @default(cuid())
+  raceWeekendId      String
+  providerSessionKey Int?        @unique
+  type               String
+  name               String
+  status             String      @default("SCHEDULED")
+  startsAt           DateTime?
+  endsAt             DateTime?
+  isLiveCapable      Boolean     @default(false)
+  raceWeekend        RaceWeekend @relation(fields: [raceWeekendId], references: [id], onDelete: Cascade)
+  liveSessions       LiveSession[]
+  raceResults        RaceResult[]
+  qualifyingResults  QualifyingResult[]
+  sprintResults      SprintResult[]
+  laps               Lap[]
+  pitStops           PitStop[]
+  weatherSamples     WeatherSample[]
+
+  @@unique([raceWeekendId, type])
+}
+
+model DriverStanding {
+  id            String       @id @default(cuid())
+  seasonId      String
+  driverId      String
+  constructorId String?
+  position      Int
+  points        Float
+  wins          Int
+  season        Season       @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  driver        Driver       @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  constructor   Constructor? @relation(fields: [constructorId], references: [id], onDelete: SetNull)
+
+  @@unique([seasonId, driverId])
+  @@index([seasonId, position])
+}
+
+model ConstructorStanding {
+  id            String      @id @default(cuid())
+  seasonId      String
+  constructorId String
+  position      Int
+  points        Float
+  wins          Int
+  season        Season      @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  constructor   Constructor @relation(fields: [constructorId], references: [id], onDelete: Cascade)
+
+  @@unique([seasonId, constructorId])
+  @@index([seasonId, position])
+}
+
+model LiveSession {
+  id                 String   @id @default(cuid())
+  sessionId          String
+  providerSessionKey Int?
+  status             String   @default("OPEN")
+  sourceName         String   @default("manual")
+  ingestFrequencyMs  Int      @default(5000)
+  openedAt           DateTime @default(now())
+  closedAt           DateTime?
+  session            Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([status, openedAt])
+}
+
+model RaceResult {
+  id                     String      @id @default(cuid())
+  raceWeekendId          String
+  sessionId              String
+  driverId               String
+  constructorId          String
+  grid                   Int?
+  finishPosition         Int?
+  classifiedPositionText String?
+  points                 Float
+  lapsCompleted          Int?
+  totalTimeMs            Int?
+  status                 String?
+  raceWeekend            RaceWeekend @relation(fields: [raceWeekendId], references: [id], onDelete: Cascade)
+  session                Session     @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  driver                 Driver      @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  constructor            Constructor @relation(fields: [constructorId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, driverId])
+  @@index([raceWeekendId, finishPosition])
+}
+
+model QualifyingResult {
+  id            String      @id @default(cuid())
+  sessionId     String
+  driverId      String
+  constructorId String
+  position      Int
+  q1Ms          Int?
+  q2Ms          Int?
+  q3Ms          Int?
+  session       Session     @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  driver        Driver      @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  constructor   Constructor @relation(fields: [constructorId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, driverId])
+  @@index([sessionId, position])
+}
+
+model SprintResult {
+  id            String      @id @default(cuid())
+  sessionId     String
+  driverId      String
+  constructorId String
+  position      Int?
+  points        Float
+  lapsCompleted Int?
+  totalTimeMs   Int?
+  status        String?
+  session       Session     @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  driver        Driver      @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  constructor   Constructor @relation(fields: [constructorId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, driverId])
+  @@index([sessionId, position])
+}
+
+model Lap {
+  id            String   @id @default(cuid())
+  sessionId     String
+  driverId      String
+  lapNumber     Int
+  sampledAt     DateTime?
+  lapTimeMs     Int?
+  sector1Ms     Int?
+  sector2Ms     Int?
+  sector3Ms     Int?
+  isPitOutLap   Boolean  @default(false)
+  session       Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  driver        Driver   @relation(fields: [driverId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, driverId, lapNumber])
+  @@index([sessionId, lapNumber])
+}
+
+model PitStop {
+  id             String   @id @default(cuid())
+  sessionId      String
+  driverId       String
+  lapNumber      Int?
+  sampledAt      DateTime?
+  laneDurationMs Int?
+  stopDurationMs Int?
+  session        Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  driver         Driver   @relation(fields: [driverId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, driverId, lapNumber])
+  @@index([sessionId, lapNumber])
+}
+
+model WeatherSample {
+  id            String   @id @default(cuid())
+  sessionId     String
+  sampledAt     DateTime
+  airTemp       Float?
+  trackTemp     Float?
+  humidity      Float?
+  rainfall      Float?
+  pressure      Float?
+  windSpeed     Float?
+  windDirection Float?
+  session       Session   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, sampledAt])
+  @@index([sessionId, sampledAt])
+}

@@ -1,0 +1,114 @@
+<h2>Quelle direction pour la nouvelle home `/` ?</h2>
+<p class="subtitle">Même contenu, trois mises en scène paddock-tech en fond noir. Le scope reste strictement : prochain GP, session live, standings pilotes, standings constructeurs.</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">A · Command Center</div>
+        <div class="mockup-body" style="background:#08090d;color:#f2f5f7;padding:18px;">
+          <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:14px;">
+            <div style="border:1px solid rgba(78,224,255,.22);border-radius:20px;padding:18px;background:radial-gradient(circle at top left, rgba(29,187,255,.18), transparent 35%), #10131a;">
+              <div style="font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:#6de6ff;">Next Grand Prix</div>
+              <div style="font-size:32px;font-weight:700;margin-top:14px;">Monaco GP</div>
+              <div style="margin-top:12px;color:#9fb3c8;">Circuit de Monaco · 4 days to lights out</div>
+            </div>
+            <div style="border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:18px;background:#0d1016;">
+              <div style="font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:#8f98a4;">Live Session</div>
+              <div style="margin-top:32px;font-size:18px;">No live session</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;">
+            <div style="border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:18px;background:#0d1016;">
+              <div style="font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:#8f98a4;">Drivers</div>
+              <div style="margin-top:12px;display:grid;gap:10px;">
+                <div style="display:flex;justify-content:space-between;"><span>01 NOR</span><span>133</span></div>
+                <div style="display:flex;justify-content:space-between;"><span>02 VER</span><span>124</span></div>
+                <div style="display:flex;justify-content:space-between;"><span>03 LEC</span><span>98</span></div>
+              </div>
+            </div>
+            <div style="border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:18px;background:#0d1016;">
+              <div style="font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:#8f98a4;">Constructors</div>
+              <div style="margin-top:12px;display:grid;gap:10px;">
+                <div style="display:flex;justify-content:space-between;"><span>01 McLaren</span><span>241</span></div>
+                <div style="display:flex;justify-content:space-between;"><span>02 Red Bull</span><span>208</span></div>
+                <div style="display:flex;justify-content:space-between;"><span>03 Ferrari</span><span>176</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Command Center</h3>
+      <p>Un cockpit propre, très lisible, avec néons bleus et hiérarchie nette. Moderne sans partir dans l’excès.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">B · Grid Pulse</div>
+        <div class="mockup-body" style="background:#050608;color:#f7fafc;padding:18px;">
+          <div style="border:1px solid rgba(255,107,53,.25);border-radius:24px;padding:22px;background:linear-gradient(135deg, rgba(255,107,53,.15), rgba(9,12,17,.9));">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div style="font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:#ff8f69;">PitWall</div>
+              <div style="font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:#8c939c;">Race Week 08</div>
+            </div>
+            <div style="margin-top:18px;font-size:34px;font-weight:700;max-width:420px;">Next stop: Monaco, framed like a launch sequence.</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:14px;">
+            <div style="border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:16px;background:#0d1117;">
+              <div style="font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#8c939c;">Live</div>
+              <div style="margin-top:20px;font-size:22px;">Standby</div>
+            </div>
+            <div style="border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:16px;background:#0d1117;">
+              <div style="font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#8c939c;">Drivers</div>
+              <div style="margin-top:14px;font-size:13px;line-height:1.7;">NOR 133<br>VER 124<br>LEC 98</div>
+            </div>
+            <div style="border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:16px;background:#0d1117;">
+              <div style="font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#8c939c;">Teams</div>
+              <div style="margin-top:14px;font-size:13px;line-height:1.7;">McLaren 241<br>Red Bull 208<br>Ferrari 176</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Grid Pulse</h3>
+      <p>Plus agressif, plus “launch control”, avec accents orange et découpe très éditoriale. Très paddock-tech.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">C · Orbital Briefing</div>
+        <div class="mockup-body" style="background:#040507;color:#eff3f8;padding:18px;">
+          <div style="display:grid;grid-template-columns:280px 1fr;gap:14px;align-items:center;">
+            <div style="width:250px;height:250px;border-radius:999px;border:1px solid rgba(0,230,185,.26);margin:auto;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle, rgba(0,230,185,.16), transparent 62%);">
+              <div style="width:150px;height:150px;border-radius:999px;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;">
+                <div>
+                  <div style="font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:#79f2d2;">Next GP</div>
+                  <div style="margin-top:12px;font-size:34px;font-weight:700;">4d</div>
+                </div>
+              </div>
+            </div>
+            <div style="display:grid;gap:12px;">
+              <div style="border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:16px;background:#0c1015;">Monaco Grand Prix · street circuit briefing</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+                <div style="border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:16px;background:#0c1015;">Live status</div>
+                <div style="border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:16px;background:#0c1015;">Driver board</div>
+                <div style="border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:16px;background:#0c1015;">Team board</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Orbital Briefing</h3>
+      <p>Plus expérimental, avec un centre orbital qui peut préparer visuellement la future page `/live` et le compte à rebours.</p>
+    </div>
+  </div>
+</div>
