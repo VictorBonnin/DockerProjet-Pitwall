@@ -106,6 +106,43 @@ function toDate(date: string | null, time?: string | null) {
   return new Date(time ? `${date}T${time}` : `${date}T00:00:00Z`)
 }
 
+function resolveRaceWeekendStatus({
+  startDate,
+  endDate,
+  now = new Date(),
+}: {
+  startDate: Date | null
+  endDate: Date | null
+  now?: Date
+}) {
+  const startMs = startDate?.getTime() ?? null
+  const endMs = endDate?.getTime() ?? startMs
+  const nowMs = now.getTime()
+
+  if (startMs === null) {
+    return "SCHEDULED"
+  }
+
+  if (endMs !== null && nowMs > endMs) {
+    return "COMPLETED"
+  }
+
+  if (nowMs >= startMs) {
+    return "LIVE"
+  }
+
+  return "SCHEDULED"
+}
+
+function isOptionalOpenF1Error(error: unknown) {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "status" in error &&
+    [404, 429].includes(Number((error as { status?: unknown }).status))
+  )
+}
+
 const sessionDefinitions = [
   ["FirstPractice", "FP1", "Practice 1", false],
   ["SecondPractice", "FP2", "Practice 2", false],
@@ -153,6 +190,9 @@ export function buildHistoricalImportPlan({
     })
 
     const raceDate = asString(raceRecord.date)
+    const startDate = toDate(raceDate, asString(raceRecord.time))
+    const endDate = toDate(raceDate, asString(raceRecord.time))
+
     raceWeekends.push({
       providerRaceUrl: asString(raceRecord.url),
       round,
@@ -160,9 +200,9 @@ export function buildHistoricalImportPlan({
       name: raceName,
       officialName: asString(raceRecord.raceName),
       country,
-      status: "COMPLETED",
-      startDate: toDate(raceDate, asString(raceRecord.time)),
-      endDate: toDate(raceDate, asString(raceRecord.time)),
+      status: resolveRaceWeekendStatus({ startDate, endDate }),
+      startDate,
+      endDate,
       circuitProviderJolpicaId,
     })
 
@@ -470,7 +510,21 @@ export async function syncHistoricalSeason(year: number) {
   }
 
   const sessionResults = await syncSessionResultsForYear(year)
-  const sessionDetails = await syncSessionDetailsForYear(year)
+
+  let sessionDetails = {
+    matchedSessions: 0,
+    laps: 0,
+    pitStops: 0,
+    weatherSamples: 0,
+  }
+
+  try {
+    sessionDetails = await syncSessionDetailsForYear(year)
+  } catch (error) {
+    if (!isOptionalOpenF1Error(error)) {
+      throw error
+    }
+  }
 
   return {
     year,

@@ -121,4 +121,41 @@ export async function runHistorySyncServiceTests() {
   assert.equal(plan.constructors[0]?.providerJolpicaId, "red_bull")
   assert.equal(plan.driverStandings[0]?.points, 25)
   assert.equal(plan.constructorStandings[0]?.wins, 1)
+  assert.equal(plan.raceWeekends[0]?.status, "COMPLETED")
+
+  const futurePlan = buildHistoricalImportPlan({
+    year: 2099,
+    schedulePayload: {
+      MRData: {
+        RaceTable: {
+          season: "2099",
+          Races: [
+            {
+              ...jolpicaSchedulePayload.MRData.RaceTable.Races[0],
+              season: "2099",
+              date: "2099-03-16",
+            },
+          ],
+        },
+      },
+    },
+    driverStandingsPayload: {
+      MRData: {
+        StandingsTable: {
+          season: "2099",
+          StandingsLists: [],
+        },
+      },
+    },
+    constructorStandingsPayload: {
+      MRData: {
+        StandingsTable: {
+          season: "2099",
+          StandingsLists: [],
+        },
+      },
+    },
+  })
+
+  assert.equal(futurePlan.raceWeekends[0]?.status, "SCHEDULED")
 }

@@ -79,6 +79,15 @@ function isRateLimitError(error: unknown) {
   )
 }
 
+function isNotFoundError(error: unknown) {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "status" in error &&
+    (error as { status?: unknown }).status === 404
+  )
+}
+
 export async function fetchWithRateLimitRetry<T>(
   operation: () => Promise<T>,
   {
@@ -101,6 +110,18 @@ export async function fetchWithRateLimitRetry<T>(
       attempt += 1
       await sleep(delayMs)
     }
+  }
+}
+
+async function fetchOptionalOpenF1<T>(operation: () => Promise<T>, fallback: T): Promise<T> {
+  try {
+    return await fetchWithRateLimitRetry(operation)
+  } catch (error) {
+    if (isNotFoundError(error)) {
+      return fallback
+    }
+
+    throw error
   }
 }
 
@@ -355,14 +376,17 @@ export async function syncSessionDetailsForYear(year: number) {
     const sessionKey = session.providerSessionKey
     if (!sessionKey) continue
 
-    const lapsPayload = await fetchWithRateLimitRetry(() =>
-      scheduleOpenF1Request(() => getLapsBySession(sessionKey)),
+    const lapsPayload = await fetchOptionalOpenF1(
+      () => scheduleOpenF1Request(() => getLapsBySession(sessionKey)),
+      [],
     )
-    const pitPayload = await fetchWithRateLimitRetry(() =>
-      scheduleOpenF1Request(() => getPitBySession(sessionKey)),
+    const pitPayload = await fetchOptionalOpenF1(
+      () => scheduleOpenF1Request(() => getPitBySession(sessionKey)),
+      [],
     )
-    const weatherPayload = await fetchWithRateLimitRetry(() =>
-      scheduleOpenF1Request(() => getWeatherBySession(sessionKey)),
+    const weatherPayload = await fetchOptionalOpenF1(
+      () => scheduleOpenF1Request(() => getWeatherBySession(sessionKey)),
+      [],
     )
 
     const plan = buildSessionDetailsImportPlan({
