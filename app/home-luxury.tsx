@@ -261,11 +261,11 @@ export function HomeLuxury({ home }: HomeLuxuryProps) {
       <header className="site-header">
         <div className="header-logo">{home.header.logo}</div>
         <nav className="header-nav">
-          <button className="nav-link" onClick={() => setActivePage("saisons")} type="button">
-            Saisons
-          </button>
           <button className="nav-link" onClick={() => setActivePage("circuits")} type="button">
-            Circuits
+            {home.header.seasonLabel}
+          </button>
+          <button className="nav-link" onClick={() => setActivePage("saisons")} type="button">
+            Historique
           </button>
           <button className="nav-link" onClick={() => setActivePage("statut")} type="button">
             Statut
