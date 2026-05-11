@@ -102,6 +102,9 @@ model Session {
   laps               Lap[]
   pitStops           PitStop[]
   weatherSamples     WeatherSample[]
+  liveCarPositions   LiveCarPosition[]
+  liveCarTelemetry   LiveCarTelemetry[]
+  liveStints         LiveStint[]
 
   @@unique([raceWeekendId, type])
 }
@@ -255,4 +258,54 @@ model WeatherSample {
 
   @@unique([sessionId, sampledAt])
   @@index([sessionId, sampledAt])
+}
+
+// ── Live telemetry time-series (ingested during the session) ──
+
+model LiveCarPosition {
+  id           String   @id @default(cuid())
+  sessionId    String
+  driverNumber Int
+  sampledAt    DateTime
+  x            Float
+  y            Float
+  z            Float?
+  session      Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, driverNumber, sampledAt])
+  @@index([sessionId, sampledAt])
+  @@index([sessionId, driverNumber])
+}
+
+model LiveCarTelemetry {
+  id           String   @id @default(cuid())
+  sessionId    String
+  driverNumber Int
+  sampledAt    DateTime
+  speedKph     Int?
+  throttle     Float?
+  brake        Float?
+  gear         Int?
+  rpm          Int?
+  drs          Int?
+  session      Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, driverNumber, sampledAt])
+  @@index([sessionId, sampledAt])
+  @@index([sessionId, driverNumber])
+}
+
+model LiveStint {
+  id             String  @id @default(cuid())
+  sessionId      String
+  driverNumber   Int
+  stintNumber    Int
+  compound       String?
+  lapStart       Int?
+  lapEnd         Int?
+  tyreAgeAtStart Int?
+  session        Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, driverNumber, stintNumber])
+  @@index([sessionId, driverNumber])
 }

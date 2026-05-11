@@ -6,7 +6,10 @@ import { runDriverPageServiceTests } from "./driver-page.service.test"
 import { runHealthRouteTests } from "./health-route.test"
 import { runHistorySyncServiceTests } from "./history-sync.service.test"
 import { runHomePageServiceTests } from "./home-page.service.test"
+import { runHomeLuxuryServiceTests } from "./home-luxury.service.test"
 import { runLiveQueryServiceTests } from "./live-query.service.test"
+import { runLiveSessionControlServiceTests } from "./live-session-control.service.test"
+import { runLivePageServiceTests } from "./live-page.service.test"
 import { runRaceWeekendPageServiceTests } from "./race-weekend-page.service.test"
 import { runRaceGridLayoutTests } from "./race-grid-layout.test"
 import { runRacesIndexServiceTests } from "./races-index.service.test"
@@ -24,7 +27,10 @@ async function main() {
     ["health-route", runHealthRouteTests],
     ["history-sync-service", runHistorySyncServiceTests],
     ["home-page-service", runHomePageServiceTests],
+    ["home-luxury-service", runHomeLuxuryServiceTests],
     ["live-query-service", runLiveQueryServiceTests],
+    ["live-session-control-service", runLiveSessionControlServiceTests],
+    ["live-page-service", runLivePageServiceTests],
     ["race-weekend-page-service", runRaceWeekendPageServiceTests],
     ["race-grid-layout", runRaceGridLayoutTests],
     ["races-index-service", runRacesIndexServiceTests],

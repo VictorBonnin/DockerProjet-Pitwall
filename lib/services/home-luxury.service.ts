@@ -89,7 +89,11 @@ function formatDateLong(date: Date | null) {
     .replace(",", "")
 }
 
-function normalizeGrandPrixLocation(name: string | null | undefined, circuitName: string | null | undefined) {
+export function normalizeGrandPrixLocation(
+  name: string | null | undefined,
+  circuitName: string | null | undefined,
+  country?: string | null,
+) {
   const raw =
     name
       ?.replace(/^Formula 1\s+/i, "")
@@ -106,34 +110,59 @@ function normalizeGrandPrixLocation(name: string | null | undefined, circuitName
       .replace(/\bde\b/gi, "")
       .replace(/d['’]/gi, "")
       .replace(/\s+/g, " ")
-      .trim() || circuitName?.trim() || "A venir"
+      .trim() || country?.trim() || circuitName?.trim() || "A venir"
 
-  return raw
+  const normalized = raw
     .replace(/^the\s+/i, "")
     .replace(/\b20\d{2}\b/g, "")
     .replace(/\s+/g, " ")
     .trim()
+
+  if (/^canadian$/i.test(normalized)) return "Canada"
+
+  return normalized
 }
 
-function buildDisplayGrandPrixName(location: string) {
+export function buildDisplayGrandPrixName(location: string) {
   if (!location) return "Grand Prix a confirmer"
+  if (/^canada$/i.test(location)) return "Grand Prix du Canada"
 
   return /^[aeiouyhàâäéèêëîïôöùûü]/i.test(location)
     ? `Grand Prix d’${location}`
     : `Grand Prix de ${location}`
 }
 
-function pickNextRaceWeekend<
+export function isRaceWeekendFinished<
+  T extends {
+    status: string
+    endDate?: Date | null
+    startDate?: Date | null
+  },
+>(weekend: T, now = new Date()) {
+  if (weekend.status === "COMPLETED") return true
+
+  const referenceDate = weekend.endDate ?? weekend.startDate ?? null
+  return referenceDate ? referenceDate.getTime() < now.getTime() : false
+}
+
+export function pickNextRaceWeekend<
   T extends {
     round: number
     status: string
+    startDate?: Date | null
+    endDate?: Date | null
   },
->(weekends: T[]) {
+>(weekends: T[], now = new Date()) {
   const sorted = [...weekends].sort((a, b) => a.round - b.round)
-  return sorted.find((weekend) => weekend.status !== "COMPLETED") ?? sorted.at(-1) ?? null
+  return (
+    sorted.find((weekend) => !isRaceWeekendFinished(weekend, now)) ??
+    sorted.find((weekend) => weekend.status !== "COMPLETED") ??
+    sorted.at(-1) ??
+    null
+  )
 }
 
-export async function getHomeLuxuryData() {
+export async function getHomeLuxuryData(now = new Date()) {
   try {
     const seasons = await prisma.season.findMany({
       orderBy: { year: "desc" },
@@ -154,6 +183,7 @@ export async function getHomeLuxuryData() {
               },
               include: {
                 driver: true,
+                constructor: false,
               },
               take: 1,
             },
@@ -164,9 +194,13 @@ export async function getHomeLuxuryData() {
     })
 
     const currentSeason = seasons[0] ?? null
-    const nextGrandPrix = currentSeason ? pickNextRaceWeekend(currentSeason.raceWeekends) : null
+    const nextGrandPrix = currentSeason ? pickNextRaceWeekend(currentSeason.raceWeekends, now) : null
     const liveSession = (await getCurrentLiveSession()) as LiveSessionModel | null
-    const grandPrixLocation = normalizeGrandPrixLocation(nextGrandPrix?.name, nextGrandPrix?.circuit.name)
+    const grandPrixLocation = normalizeGrandPrixLocation(
+      nextGrandPrix?.name,
+      nextGrandPrix?.circuit.name,
+      nextGrandPrix?.country,
+    )
 
     return {
       header: {
@@ -228,7 +262,7 @@ export async function getHomeLuxuryData() {
                 detailB: `Manche · Round ${weekend.round}`,
                 detailC: `Fenetre · ${formatDateShort(weekend.startDate)}`,
                 winnerLabel: weekend.raceResults[0]?.driver.fullName ?? "À déterminer",
-                isFinished: weekend.status === "COMPLETED",
+                isFinished: isRaceWeekendFinished(weekend, now),
               }
             }) ?? [],
         },

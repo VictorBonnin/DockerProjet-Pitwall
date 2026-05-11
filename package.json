@@ -12,6 +12,7 @@
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "assets:official": "tsx scripts/backfill-official-assets.ts",
+    "live:open": "tsx workers/open-live-session.ts",
     "worker:sync-static": "tsx workers/sync-static.ts",
     "worker:sync-history": "tsx workers/sync-history.ts",
     "worker:sync-live": "tsx workers/sync-live.ts",

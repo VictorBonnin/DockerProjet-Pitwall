@@ -61,7 +61,7 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 36px;
+  padding: 14px 28px;
   opacity: 0.3;
   transition:
     opacity 0.5s ease,
@@ -75,30 +75,32 @@ body::before {
 
 .header-logo {
   font-family: "Cormorant Garamond", serif;
-  font-size: 1.5rem;
-  letter-spacing: 0.12em;
+  font-size: 1.12rem;
+  letter-spacing: 0.1em;
   color: var(--gold);
   text-shadow: 0 0 20px rgba(201, 164, 74, 0.35);
 }
 
 .header-nav {
   display: flex;
-  gap: 40px;
+  gap: 24px;
   align-items: center;
 }
 
 .nav-link {
   position: relative;
+  display: inline-block;
   padding-bottom: 4px;
   border: 0;
   background: none;
   color: var(--cream);
   cursor: pointer;
   font-family: "Cormorant Garamond", serif;
-  font-size: 0.75rem;
-  letter-spacing: 0.4em;
+  font-size: 0.58rem;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
   transition: color 0.3s ease;
+  text-decoration: none;
 }
 
 .nav-link::after {
@@ -736,6 +738,107 @@ body::before {
   width: 60px;
 }
 
+.status-control-state {
+  opacity: 1;
+}
+
+.status-live-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.status-live-button {
+  position: relative;
+  min-width: 210px;
+  padding: 15px 26px;
+  overflow: hidden;
+  border: 1px solid rgba(232, 201, 110, 0.42);
+  border-radius: 999px;
+  background:
+    linear-gradient(135deg, rgba(232, 201, 110, 0.18), rgba(80, 20, 18, 0.28)),
+    rgba(5, 4, 4, 0.72);
+  box-shadow:
+    0 0 32px rgba(232, 201, 110, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  color: rgba(245, 237, 224, 0.94);
+  cursor: pointer;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    color 180ms ease;
+}
+
+.status-live-button::before {
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  background: radial-gradient(circle at 50% 0%, rgba(245, 237, 224, 0.2), transparent 55%);
+  content: "";
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.status-live-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: rgba(232, 201, 110, 0.76);
+  box-shadow:
+    0 0 44px rgba(232, 201, 110, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  color: #fff8dd;
+}
+
+.status-live-button:disabled {
+  cursor: wait;
+  opacity: 0.58;
+}
+
+.status-live-button--danger {
+  border-color: rgba(255, 124, 100, 0.38);
+  background:
+    linear-gradient(135deg, rgba(255, 124, 100, 0.16), rgba(80, 20, 18, 0.34)),
+    rgba(5, 4, 4, 0.72);
+  color: rgba(255, 221, 212, 0.92);
+}
+
+.status-live-button--danger:hover:not(:disabled) {
+  border-color: rgba(255, 124, 100, 0.72);
+  box-shadow:
+    0 0 44px rgba(255, 124, 100, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  color: #fff1ec;
+}
+
+.status-action-message {
+  display: block;
+  max-width: 34rem;
+  min-height: 1.4rem;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  line-height: 1.6;
+}
+
+.status-action-message.is-success {
+  color: rgba(174, 255, 196, 0.75);
+}
+
+.status-action-message.is-error {
+  color: rgba(255, 149, 133, 0.82);
+}
+
+.status-action-message.is-loading {
+  color: rgba(232, 201, 110, 0.74);
+}
+
 @keyframes slowSpin {
   from {
     transform: translate(-50%, -50%) rotate(0deg);
@@ -835,12 +938,12 @@ body::before {
   }
 
   .header-nav {
-    gap: 16px;
+    gap: 11px;
   }
 
   .nav-link {
-    font-size: 0.65rem;
-    letter-spacing: 0.25em;
+    font-size: 0.52rem;
+    letter-spacing: 0.16em;
   }
 
   .page-overlay {
@@ -886,5 +989,657 @@ body::before {
   .circuit-card {
     min-height: 212px;
     padding: 20px 16px 56px;
+  }
+}
+
+/* ─── Live Page ──────────────────────────────────── */
+
+.live-page {
+  min-height: 100vh;
+  background:
+    linear-gradient(180deg, rgba(8, 7, 5, 0.96), rgba(5, 5, 5, 1)),
+    radial-gradient(circle at 18% 20%, rgba(201, 164, 74, 0.08), transparent 34%),
+    radial-gradient(circle at 78% 12%, rgba(85, 190, 170, 0.08), transparent 30%);
+  color: var(--cream);
+}
+
+.live-topbar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 52px;
+  padding: 0 clamp(18px, 4vw, 56px);
+  border-bottom: 1px solid rgba(201, 164, 74, 0.12);
+  background: rgba(5, 4, 2, 0.92);
+  backdrop-filter: blur(18px);
+}
+
+.live-brand {
+  color: var(--gold-lt);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1.08rem;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+/* Centre topbar : badge + titre GP */
+
+.live-topbar-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  white-space: nowrap;
+}
+
+.live-air-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px 3px 7px;
+  border: 1px solid rgba(245, 237, 224, 0.15);
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.52rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(245, 237, 224, 0.42);
+}
+
+.live-air-badge--on {
+  border-color: rgba(255, 60, 60, 0.3);
+  color: #ff4444;
+}
+
+.live-air-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(245, 237, 224, 0.25);
+  flex-shrink: 0;
+}
+
+.live-air-badge--on .live-air-dot {
+  background: #ff4444;
+  box-shadow: 0 0 5px #ff4444;
+  animation: live-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+.live-topbar-title {
+  margin: 0;
+  color: var(--cream);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 0.96rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+}
+
+.live-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+/* Indicateur de sync (petit point vert/ambre) */
+
+.live-sync-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background 0.4s;
+}
+
+.live-sync-dot--active {
+  background: rgba(80, 209, 125, 0.7);
+  animation: live-sync-pulse 2.5s ease-in-out infinite;
+}
+
+.live-sync-dot--stale {
+  background: rgba(255, 180, 50, 0.8);
+}
+
+@keyframes live-sync-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+.live-nav {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+
+.live-nav a {
+  color: rgba(245, 237, 224, 0.62);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 0.58rem;
+  letter-spacing: 0.24em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.live-nav a:hover {
+  color: var(--gold-lt);
+}
+
+/* ─── Vue principale plein écran ─── */
+
+.live-main-view {
+  display: flex;
+  flex-direction: row;
+  height: calc(100vh - 52px);
+  margin-top: 52px;
+  overflow: hidden;
+}
+
+/* Sidebar gauche : session info + classement */
+
+.live-sidebar {
+  width: 310px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  border-right: 1px solid rgba(201, 164, 74, 0.12);
+  background: rgba(6, 5, 3, 0.98);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(201, 164, 74, 0.2) transparent;
+}
+
+.live-idle {
+  flex-shrink: 0;
+  padding: 12px 18px;
+  border-bottom: 1px solid rgba(201, 164, 74, 0.08);
+}
+
+.live-idle span {
+  color: rgba(245, 237, 224, 0.42);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  line-height: 1.5;
+}
+
+.live-section-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  flex-shrink: 0;
+  padding: 14px 18px 0;
+}
+
+.live-section-heading span {
+  color: rgba(255, 232, 166, 0.92);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.36em;
+  text-shadow: 0 0 18px rgba(232, 201, 110, 0.18);
+  text-transform: uppercase;
+}
+
+.live-section-heading strong {
+  color: rgba(245, 237, 224, 0.68);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 0.82rem;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.live-leaderboard {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 12px 18px;
+}
+
+.live-driver-row {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) 64px 18px;
+  gap: 8px;
+  align-items: center;
+  min-height: 52px;
+  padding: 7px 12px 7px 10px;
+  border-left: 2px solid var(--team);
+  border-bottom: 1px solid rgba(201, 164, 74, 0.05);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--team), transparent 91%), transparent);
+}
+
+.live-driver-position {
+  color: var(--gold-lt);
+  font-family: "Playfair Display", serif;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.live-driver-main,
+.live-driver-gap,
+.live-tyre {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.live-driver-main span {
+  color: rgba(245, 237, 224, 0.36);
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.55rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.live-driver-main strong {
+  color: var(--cream);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  line-height: 1.1;
+}
+
+.live-driver-main small {
+  color: var(--gold-dk);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.live-driver-gap span {
+  color: var(--cream);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 0.86rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.live-driver-gap small {
+  color: rgba(245, 237, 224, 0.32);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+}
+
+.live-tyre {
+  align-items: center;
+}
+
+.live-tyre span {
+  color: rgba(245, 237, 224, 0.65);
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.live-tyre-soft span    { color: #ff5b72; }
+.live-tyre-medium span  { color: #ffd84d; }
+.live-tyre-hard span    { color: #e8e8e8; }
+.live-tyre-intermediate span { color: #50d17d; }
+.live-tyre-wet span     { color: #4aa3ff; }
+
+.live-panel-empty {
+  display: grid;
+  min-height: 120px;
+  place-items: center;
+  color: rgba(245, 237, 224, 0.42);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 0.9rem;
+  letter-spacing: 0.12em;
+  text-align: center;
+  padding: 16px;
+}
+
+/* ─── Zone circuit (droite) ─── */
+
+.live-map-area {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.live-track-map {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at center, rgba(201, 164, 74, 0.05), transparent 60%),
+    rgba(3, 3, 3, 0.88);
+}
+
+.live-circuit-image {
+  position: absolute;
+  inset: 7%;
+  width: 86%;
+  height: 86%;
+  object-fit: contain;
+  opacity: 0.5;
+  filter: brightness(1.2) contrast(1.05);
+}
+
+.live-circuit-svg {
+  position: absolute;
+  inset: 9%;
+  width: 82%;
+  height: 82%;
+  fill: none;
+  stroke: rgba(232, 201, 110, 0.5);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 8;
+}
+
+.live-car-marker {
+  position: absolute;
+  z-index: 5;
+  display: grid;
+  width: 38px;
+  height: 38px;
+  border: 1px solid color-mix(in srgb, var(--team), white 26%);
+  border-radius: 999px;
+  place-items: center;
+  background: color-mix(in srgb, var(--team), black 40%);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--team), transparent 32%);
+  transform: translate(-50%, -50%);
+  transition:
+    top var(--marker-transition, 900ms) linear,
+    left var(--marker-transition, 900ms) linear,
+    box-shadow 220ms ease,
+    border-color 220ms ease;
+}
+
+.live-car-marker span {
+  color: #fff;
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.live-track-empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: rgba(245, 237, 224, 0.42);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.12em;
+}
+
+/* ─── Météo incrustée (floating, pas de box) ─── */
+
+.live-weather-overlay {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+}
+
+.live-weather-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.live-weather-icon {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  color: var(--gold-lt);
+  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.7));
+}
+
+.live-weather-icon--rain {
+  color: #7bc8ff;
+}
+
+.live-weather-condition {
+  color: rgba(245, 237, 224, 0.82);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+}
+
+.live-weather-overlay--rain .live-weather-condition {
+  color: #7bc8ff;
+}
+
+.live-weather-stats {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+}
+
+.live-weather-stats span {
+  color: rgba(245, 237, 224, 0.54);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+}
+
+.live-weather-sep {
+  color: rgba(201, 164, 74, 0.35) !important;
+  font-size: 0.62rem !important;
+}
+
+/* Label circuit (bas-gauche de la carte) */
+
+.live-circuit-label {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.live-circuit-label span {
+  color: var(--gold-dk);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+}
+
+.live-circuit-label strong {
+  color: var(--cream);
+  font-family: "Playfair Display", serif;
+  font-size: 1.3rem;
+  font-weight: 400;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+}
+
+/* ─── Section données au scroll ─── */
+
+.live-data-section {
+  padding: clamp(28px, 4vw, 56px);
+}
+
+.live-data-heading {
+  margin-bottom: 22px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(201, 164, 74, 0.14);
+}
+
+.live-data-heading span {
+  color: rgba(255, 232, 166, 0.9);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.36em;
+  text-shadow: 0 0 18px rgba(232, 201, 110, 0.16);
+  text-transform: uppercase;
+}
+
+.live-data-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+}
+
+.live-panel {
+  border: 1px solid rgba(201, 164, 74, 0.12);
+  background: rgba(9, 8, 6, 0.72);
+}
+
+.live-telemetry-list,
+.live-race-control {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 20px;
+}
+
+.live-telemetry-row {
+  display: grid;
+  grid-template-columns: 44px 88px repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(201, 164, 74, 0.08);
+}
+
+.live-telemetry-row span {
+  color: var(--gold-lt);
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.live-telemetry-row strong {
+  color: var(--cream);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1rem;
+}
+
+.live-telemetry-row small,
+.live-control-message small,
+.live-control-message span {
+  color: rgba(245, 237, 224, 0.38);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.live-control-message {
+  display: grid;
+  gap: 6px;
+  padding: 13px 0;
+  border-bottom: 1px solid rgba(201, 164, 74, 0.08);
+}
+
+.live-control-message strong {
+  color: rgba(245, 237, 224, 0.82);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 0.96rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+}
+
+/* ─── Responsive ─── */
+
+@media (max-width: 1200px) {
+  .live-sidebar {
+    width: 270px;
+  }
+}
+
+@media (max-width: 860px) {
+  .live-main-view {
+    flex-direction: column;
+    height: auto;
+    overflow: visible;
+  }
+
+  .live-sidebar {
+    width: 100%;
+    height: auto;
+    max-height: 48vh;
+    border-right: none;
+    border-bottom: 1px solid rgba(201, 164, 74, 0.12);
+  }
+
+  .live-map-area {
+    height: 60vw;
+    min-height: 340px;
+    flex: none;
+  }
+
+  .live-data-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .live-topbar {
+    padding: 0 16px;
+  }
+
+  .live-nav {
+    gap: 12px;
+  }
+
+  .live-sidebar {
+    max-height: 44vh;
+  }
+
+  .live-map-area {
+    height: 52vw;
+    min-height: 280px;
+  }
+
+  .live-weather-overlay {
+    top: 10px;
+    right: 12px;
+  }
+
+  .live-circuit-label strong {
+    font-size: 1rem;
+  }
+
+  .live-driver-row {
+    grid-template-columns: 24px minmax(0, 1fr) 56px;
+  }
+
+  .live-tyre {
+    display: none;
+  }
+
+  .live-telemetry-row {
+    grid-template-columns: 40px 1fr 1fr;
+  }
+
+  .live-data-section {
+    padding: 20px 16px;
   }
 }

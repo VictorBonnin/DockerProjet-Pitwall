@@ -101,6 +101,10 @@ export function HomeLuxury({ home }: HomeLuxuryProps) {
   const orbitItemRefs = useRef<Array<HTMLDivElement | null>>([])
   const noiseCanvasRef = useRef<HTMLCanvasElement | null>(null)
   const [activePage, setActivePage] = useState<"saisons" | "circuits" | "statut" | null>(null)
+  const [liveSessionAction, setLiveSessionAction] = useState<{
+    state: "idle" | "loading" | "success" | "error"
+    message: string
+  }>({ state: "idle", message: "" })
   const [countdown, setCountdown] = useState({
     days: "00",
     hours: "00",
@@ -254,6 +258,81 @@ export function HomeLuxury({ home }: HomeLuxuryProps) {
     }
   }, [])
 
+  const openLiveFromStatus = async () => {
+    setLiveSessionAction({
+      state: "loading",
+      message: "Ouverture de la session live...",
+    })
+
+    try {
+      const response = await fetch("/api/live/sessions/open", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sessionKey: "next",
+          ingestFrequencyMs: 3000,
+        }),
+      })
+      const payload = (await response.json().catch(() => ({}))) as {
+        error?: string
+        message?: string
+      }
+
+      if (!response.ok) {
+        throw new Error(payload.error ?? "Impossible d'ouvrir la session live.")
+      }
+
+      setLiveSessionAction({
+        state: "success",
+        message: payload.message ?? "Session live ouverte.",
+      })
+    } catch (error) {
+      setLiveSessionAction({
+        state: "error",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Impossible d'ouvrir la session live.",
+      })
+    }
+  }
+
+  const closeLiveFromStatus = async () => {
+    setLiveSessionAction({
+      state: "loading",
+      message: "Arret du flux live...",
+    })
+
+    try {
+      const response = await fetch("/api/live/sessions/close", {
+        method: "POST",
+      })
+      const payload = (await response.json().catch(() => ({}))) as {
+        error?: string
+        message?: string
+      }
+
+      if (!response.ok) {
+        throw new Error(payload.error ?? "Impossible d'arreter la session live.")
+      }
+
+      setLiveSessionAction({
+        state: "success",
+        message: payload.message ?? "Flux live arrete.",
+      })
+    } catch (error) {
+      setLiveSessionAction({
+        state: "error",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Impossible d'arreter la session live.",
+      })
+    }
+  }
+
   return (
     <main className="luxury-home">
       <canvas id="noise" ref={noiseCanvasRef} />
@@ -267,6 +346,9 @@ export function HomeLuxury({ home }: HomeLuxuryProps) {
           <button className="nav-link" onClick={() => setActivePage("saisons")} type="button">
             Historique
           </button>
+          <a className="nav-link" href="/live">
+            Live
+          </a>
           <button className="nav-link" onClick={() => setActivePage("statut")} type="button">
             Statut
           </button>
@@ -416,8 +498,8 @@ export function HomeLuxury({ home }: HomeLuxuryProps) {
           {home.overlays.circuits.rows.length > 0 ? (
             home.overlays.circuits.rows.map((row) => (
               <div className={`circuit-card ${row.isFinished ? "is-finished" : ""}`} key={`${row.name}-${row.country}`}>
-                <div className="circuit-name">{row.name}</div>
-                <div className="circuit-country">{row.country}</div>
+                <div className="circuit-name">{row.country}</div>
+                <div className="circuit-country">{row.name}</div>
                 <div className="circuit-details">
                   <div className="circuit-detail">{row.detailA}</div>
                   <div className="circuit-detail">{row.detailB}</div>
@@ -463,10 +545,33 @@ export function HomeLuxury({ home }: HomeLuxuryProps) {
           <div className="overlay-subtitle">{home.overlays.status.subtitle}</div>
         </div>
 
-        <div className="overlay-empty-state">
+        <div className="overlay-empty-state status-control-state">
           <div className="ornament-line status-line" />
           <p>{home.overlays.status.stateLabel}</p>
           <span className="status-helper">{home.overlays.status.helper}</span>
+          <div className="status-live-actions">
+            <button
+              className="status-live-button"
+              disabled={liveSessionAction.state === "loading"}
+              onClick={openLiveFromStatus}
+              type="button"
+            >
+              {liveSessionAction.state === "loading" ? "Synchronisation..." : "Ouvrir le live"}
+            </button>
+            <button
+              className="status-live-button status-live-button--danger"
+              disabled={liveSessionAction.state === "loading"}
+              onClick={closeLiveFromStatus}
+              type="button"
+            >
+              Arreter le live
+            </button>
+          </div>
+          {liveSessionAction.message ? (
+            <span className={`status-action-message is-${liveSessionAction.state}`}>
+              {liveSessionAction.message}
+            </span>
+          ) : null}
           <div className="ornament-line r status-line" />
         </div>
       </div>
