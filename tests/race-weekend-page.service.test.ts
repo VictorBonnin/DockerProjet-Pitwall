@@ -47,6 +47,16 @@ describe("race-weekend-page service", () => {
       expect(rows[0]?.right?.gapToAheadLabel).toBe("+0.000s")
     })
 
+    it("shows Indisponible when qualifying time is missing for a non-pole driver", () => {
+      const rows = buildStartingGridRows([
+        { position: 1, driver: { fullName: "Driver One", code: "D01" }, constructor: { name: "Team A", slug: "team-a" }, q1Ms: 80000 },
+        { position: 2, driver: { fullName: "Driver Two", code: "D02" }, constructor: { name: "Team B", slug: "team-b" } },
+      ])
+
+      expect(rows[0]?.right?.gapToPoleLabel).toBe("Indisponible")
+      expect(rows[0]?.right?.gapToAheadLabel).toBe("Indisponible")
+    })
+
     it("uses best Q segment time for delta calculation", () => {
       const rows = buildStartingGridRows([
         { position: 15, driver: { fullName: "Driver Fifteen", code: "D15" }, constructor: { name: "Haas F1 Team", slug: "haas-f1-team" }, q1Ms: 73074, q2Ms: 73315 },

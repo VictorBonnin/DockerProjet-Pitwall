@@ -13,6 +13,24 @@ describe("live-session-control service", () => {
     expect(parsed.ingestFrequencyMs).toBe(7000)
   })
 
+  it("parses the --source argument", () => {
+    const parsed = parseLiveOpenArgs(["--session-key", "next", "--frequency-ms", "3000", "--source", "dashboard"])
+    expect(parsed.sessionKey).toBe("next")
+    expect(parsed.sourceName).toBe("dashboard")
+  })
+
+  it("throws on an unknown argument", () => {
+    expect(() => parseLiveOpenArgs(["--unknown-flag"])).toThrow("Unknown argument")
+  })
+
+  it("throws when --session-key has no value", () => {
+    expect(() => parseLiveOpenArgs(["--session-key"])).toThrow("Missing value for --session-key")
+  })
+
+  it("throws when --frequency-ms has no value", () => {
+    expect(() => parseLiveOpenArgs(["--frequency-ms"])).toThrow("Missing value for --frequency-ms")
+  })
+
   it("parses open request body and adds default source name", () => {
     const options = parseLiveOpenRequestBody({ sessionKey: "next", ingestFrequencyMs: 6000 })
     expect(options.sessionKey).toBe("next")
