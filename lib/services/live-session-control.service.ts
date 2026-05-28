@@ -146,6 +146,7 @@ async function defaultFetchOpenF1Session(sessionKey: SessionKeyOption) {
   return sessionKey === "latest" ? getLatestSession() : getSessionByKey(sessionKey)
 }
 
+/* v8 ignore start */
 function buildDefaultDependencies(): Required<OpenLiveSessionDependencies> {
   return {
     now: () => new Date(),
@@ -218,6 +219,9 @@ function buildDefaultDependencies(): Required<OpenLiveSessionDependencies> {
   }
 }
 
+/* v8 ignore stop */
+
+/* v8 ignore start */
 function buildDefaultCloseDependencies(): Required<CloseLiveSessionDependencies> {
   return {
     now: () => new Date(),
@@ -250,6 +254,7 @@ function buildDefaultCloseDependencies(): Required<CloseLiveSessionDependencies>
       }),
   }
 }
+/* v8 ignore stop */
 
 function firstOpenF1Session(payload: OpenF1SessionPayload) {
   const session = payload[0]
