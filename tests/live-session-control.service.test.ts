@@ -141,6 +141,79 @@ describe("live-session-control service", () => {
     expect(closed).toBeNull()
   })
 
+  it("throws when OpenF1 returns an empty payload", async () => {
+    await expect(
+      openLiveSession(
+        { sessionKey: "latest", ingestFrequencyMs: 5000, sourceName: "test" },
+        {
+          now: () => new Date(),
+          fetchOpenF1Session: async () => [],
+          findExistingOpenLiveSession: async () => null,
+          findSessionByProviderKey: async () => null,
+          findCandidateSessions: async () => [],
+          updateSessionProviderKey: async () => {},
+          createLiveSession: async () => { throw new Error("should not be called") },
+        },
+      ),
+    ).rejects.toThrow("OpenF1 did not return a session")
+  })
+
+  it("returns the existing session when already open with same provider key", async () => {
+    const internalSession = { id: "internal-race", type: "RACE", name: "Race", startsAt: new Date(), raceWeekend: { name: "GP" } }
+    const existingLiveSession = { id: "existing-session", sessionId: "internal-race", providerSessionKey: 12345, ingestFrequencyMs: 5000, status: "OPEN" }
+
+    const result = await openLiveSession(
+      { sessionKey: "latest", ingestFrequencyMs: 5000, sourceName: "test" },
+      {
+        now: () => new Date(),
+        fetchOpenF1Session: async () => [{ session_key: 12345, session_name: "Race", meeting_name: "GP", date_start: "2026-01-01T00:00:00+00:00" }],
+        findSessionByProviderKey: async () => internalSession,
+        findExistingOpenLiveSession: async () => existingLiveSession,
+        findCandidateSessions: async () => [],
+        updateSessionProviderKey: async () => {},
+        createLiveSession: async () => { throw new Error("should not be called") },
+      },
+    )
+
+    expect(result.id).toBe("existing-session")
+  })
+
+  it("throws when a different live session is already open", async () => {
+    const internalSession = { id: "internal-race", type: "RACE", name: "Race", startsAt: new Date(), raceWeekend: { name: "GP" } }
+
+    await expect(
+      openLiveSession(
+        { sessionKey: "latest", ingestFrequencyMs: 5000, sourceName: "test" },
+        {
+          now: () => new Date(),
+          fetchOpenF1Session: async () => [{ session_key: 99999, session_name: "Race", meeting_name: "GP", date_start: "2026-01-01T00:00:00+00:00" }],
+          findSessionByProviderKey: async () => internalSession,
+          findExistingOpenLiveSession: async () => ({ id: "other-session", sessionId: "other-race", providerSessionKey: 11111, ingestFrequencyMs: 5000, status: "OPEN" }),
+          findCandidateSessions: async () => [],
+          updateSessionProviderKey: async () => {},
+          createLiveSession: async () => { throw new Error("should not be called") },
+        },
+      ),
+    ).rejects.toThrow("already OPEN")
+  })
+
+  it("throws when OpenF1 payload has no valid session_key", async () => {
+    await expect(
+      openLiveSession(
+        { sessionKey: "latest", ingestFrequencyMs: 5000, sourceName: "test" },
+        {
+          now: () => new Date(),
+          fetchOpenF1Session: async () => [{ session_key: null, session_name: "Race", meeting_name: "GP" }],
+          findExistingOpenLiveSession: async () => null,
+          findSessionByProviderKey: async () => null,
+          findCandidateSessions: async () => [],
+          updateSessionProviderKey: async () => {},
+          createLiveSession: async () => { throw new Error("should not be called") },
+        },
+      ),
+    ).rejects.toThrow("does not contain a valid session_key")
+  })
+
   it("throws when OpenF1 session cannot be matched to an internal session", async () => {
     await expect(
       openLiveSession(

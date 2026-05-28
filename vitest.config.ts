@@ -27,6 +27,7 @@ export default defineConfig({
         "next.config.ts",
         "postcss.config.mjs",
         "tailwind.config.*",
+        "lib/db/**",
       ],
       include: ["lib/**/*.ts"],
     },
