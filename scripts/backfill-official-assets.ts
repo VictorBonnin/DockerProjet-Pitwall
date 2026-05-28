@@ -276,7 +276,7 @@ async function backfillCircuits() {
 
     try {
       html = await fetchTextWithFallback(asset.pageUrl)
-    } catch (error) {
+    } catch {
       console.warn(`[assets] missing circuit page for ${asset.circuitName}`)
       continue
     }

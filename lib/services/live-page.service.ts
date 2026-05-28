@@ -361,7 +361,7 @@ export function buildLivePageModel({
         yPercent: normalizeCoordinate(entry.rawLocation.y, minY, maxY),
       })),
     },
-    leaderboard: leaderboard.map(({ rawLocation, ...entry }) => entry),
+    leaderboard: leaderboard.map(({ rawLocation: _rawLocation, ...entry }) => entry),
     weather: {
       airTemp: formatTemperature(latestWeather?.air_temperature),
       trackTemp: formatTemperature(latestWeather?.track_temperature),
