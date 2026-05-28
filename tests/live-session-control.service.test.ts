@@ -19,6 +19,11 @@ describe("live-session-control service", () => {
     expect(parsed.sourceName).toBe("dashboard")
   })
 
+  it("parses a numeric session key", () => {
+    const parsed = parseLiveOpenArgs(["--session-key", "9971", "--frequency-ms", "5000"])
+    expect(parsed.sessionKey).toBe(9971)
+  })
+
   it("throws on an unknown argument", () => {
     expect(() => parseLiveOpenArgs(["--unknown-flag"])).toThrow("Unknown argument")
   })

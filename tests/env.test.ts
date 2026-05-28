@@ -12,6 +12,13 @@ describe("env", () => {
     expect(parsed.REDIS_URL).toBe("redis://localhost:6379")
   })
 
+  it("returns the same cached instance on repeated calls to getEnv", async () => {
+    const { getEnv } = await import("@/lib/env")
+    const first = getEnv()
+    const second = getEnv()
+    expect(first).toBe(second)
+  })
+
   it("throws when REDIS_URL is missing", async () => {
     const { parseEnv } = await import("@/lib/env")
     expect(() =>

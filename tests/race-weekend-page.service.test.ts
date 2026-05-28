@@ -47,6 +47,15 @@ describe("race-weekend-page service", () => {
       expect(rows[0]?.right?.gapToAheadLabel).toBe("+0.000s")
     })
 
+    it("shows Indisponible when pole has no time but non-pole does", () => {
+      const rows = buildStartingGridRows([
+        { position: 1, driver: { fullName: "Pole Driver", code: "POL" }, constructor: { name: "Team A", slug: "team-a" } },
+        { position: 2, driver: { fullName: "Driver Two", code: "D02" }, constructor: { name: "Team B", slug: "team-b" }, q1Ms: 80000 },
+      ])
+
+      expect(rows[0]?.right?.gapToPoleLabel).toBe("Indisponible")
+    })
+
     it("shows Indisponible when qualifying time is missing for a non-pole driver", () => {
       const rows = buildStartingGridRows([
         { position: 1, driver: { fullName: "Driver One", code: "D01" }, constructor: { name: "Team A", slug: "team-a" }, q1Ms: 80000 },
