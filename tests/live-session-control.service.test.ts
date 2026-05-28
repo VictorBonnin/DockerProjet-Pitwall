@@ -36,6 +36,13 @@ describe("live-session-control service", () => {
     expect(() => parseLiveOpenArgs(["--frequency-ms"])).toThrow("Missing value for --frequency-ms")
   })
 
+  it("uses all defaults when request body is null", () => {
+    const options = parseLiveOpenRequestBody(null)
+    expect(options.sessionKey).toBe("latest")
+    expect(options.ingestFrequencyMs).toBe(5000)
+    expect(options.sourceName).toBe("status-page")
+  })
+
   it("parses open request body and adds default source name", () => {
     const options = parseLiveOpenRequestBody({ sessionKey: "next", ingestFrequencyMs: 6000 })
     expect(options.sessionKey).toBe("next")
