@@ -17,12 +17,15 @@ export async function POST(request: Request) {
     })
   } catch (error) {
     const status = typeof error === "object" && error && "status" in error ? Number(error.status) : null
-    const message =
-      status === 401
-        ? "OpenF1 a refuse la session latest. La prochaine session locale doit avoir un providerSessionKey; relance la synchro 2026 si besoin."
-        : error instanceof Error
-          ? error.message
-          : "Impossible d'ouvrir la session live."
+
+    let message: string
+    if (status === 401) {
+      message = "OpenF1 a refuse la session latest. La prochaine session locale doit avoir un providerSessionKey; relance la synchro 2026 si besoin."
+    } else if (error instanceof Error) {
+      message = error.message
+    } else {
+      message = "Impossible d'ouvrir la session live."
+    }
 
     return NextResponse.json(
       {

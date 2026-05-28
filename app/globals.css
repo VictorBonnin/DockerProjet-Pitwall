@@ -395,7 +395,7 @@ body::before {
 .landing-date {
   margin-top: 0.75rem !important;
   color: rgba(245, 237, 224, 0.42) !important;
-  letter-spacing: 0.08em !important;
+  letter-spacing: 0.08em;
   font-style: normal !important;
 }
 

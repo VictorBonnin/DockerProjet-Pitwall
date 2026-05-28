@@ -109,6 +109,12 @@ export function parseLiveOpenRequestBody(body: unknown): Required<OpenLiveSessio
   return { sessionKey, ingestFrequencyMs, sourceName }
 }
 
+function requireArgValue(args: string[], index: number, flag: string): string {
+  const value = args[index + 1]
+  if (!value) throw new Error(`Missing value for ${flag}`)
+  return value
+}
+
 export function parseLiveOpenArgs(args: string[]): Required<OpenLiveSessionOptions> {
   let sessionKey: SessionKeyOption = "latest"
   let ingestFrequencyMs = 5000
@@ -118,33 +124,18 @@ export function parseLiveOpenArgs(args: string[]): Required<OpenLiveSessionOptio
     const arg = args[index]
 
     if (arg === "--session-key") {
-      const value = args[index + 1]
-      if (!value) throw new Error("Missing value for --session-key")
-      sessionKey =
-        value === "latest" || value === "next"
-          ? value
-          : requirePositiveInteger(value, "--session-key")
+      const value = requireArgValue(args, index, "--session-key")
+      sessionKey = value === "latest" || value === "next" ? value : requirePositiveInteger(value, "--session-key")
       index += 1
-      continue
-    }
-
-    if (arg === "--frequency-ms") {
-      const value = args[index + 1]
-      if (!value) throw new Error("Missing value for --frequency-ms")
-      ingestFrequencyMs = requirePositiveInteger(value, "--frequency-ms")
+    } else if (arg === "--frequency-ms") {
+      ingestFrequencyMs = requirePositiveInteger(requireArgValue(args, index, "--frequency-ms"), "--frequency-ms")
       index += 1
-      continue
-    }
-
-    if (arg === "--source") {
-      const value = args[index + 1]
-      if (!value) throw new Error("Missing value for --source")
-      sourceName = value
+    } else if (arg === "--source") {
+      sourceName = requireArgValue(args, index, "--source")
       index += 1
-      continue
+    } else {
+      throw new Error(`Unknown argument: ${arg}`)
     }
-
-    throw new Error(`Unknown argument: ${arg}`)
   }
 
   return { sessionKey, ingestFrequencyMs, sourceName }

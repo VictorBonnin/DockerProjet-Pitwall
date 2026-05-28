@@ -130,7 +130,7 @@ export function buildHomePageModel({
           roundLabel: `Round ${nextGrandPrix.round}`,
           href: `/races/${year}/${nextGrandPrix.round}`,
           circuitName: nextGrandPrix.circuit.name,
-          locationLabel: `${nextGrandPrix.circuit.locality ? `${nextGrandPrix.circuit.locality}, ` : ""}${nextGrandPrix.country ?? nextGrandPrix.circuit.country}`,
+          locationLabel: [nextGrandPrix.circuit.locality, nextGrandPrix.country ?? nextGrandPrix.circuit.country].filter(Boolean).join(", "),
           status: nextGrandPrix.status,
           dateLabel: formatDateWindow(nextGrandPrix.startDate, nextGrandPrix.endDate),
           countdownTargetIso: nextGrandPrix.startDate?.toISOString() ?? null,

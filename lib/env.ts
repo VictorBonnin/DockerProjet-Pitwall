@@ -16,9 +16,6 @@ export function parseEnv(input: NodeJS.ProcessEnv) {
 let cachedEnv: ReturnType<typeof parseEnv> | null = null
 
 export function getEnv() {
-  if (!cachedEnv) {
-    cachedEnv = parseEnv(process.env)
-  }
-
+  cachedEnv ??= parseEnv(process.env)
   return cachedEnv
 }

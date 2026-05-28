@@ -211,7 +211,7 @@ async function getFallbackRace() {
   return {
     name: race.name,
     circuitName: race.circuit.name,
-    locationLabel: `${race.circuit.locality ? `${race.circuit.locality}, ` : ""}${race.country ?? race.circuit.country}`,
+    locationLabel: [race.circuit.locality, race.country ?? race.circuit.country].filter(Boolean).join(", "),
     startsAt: race.startDate,
   }
 }

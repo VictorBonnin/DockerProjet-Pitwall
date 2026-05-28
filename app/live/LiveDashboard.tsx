@@ -45,7 +45,7 @@ function RainIcon() {
   )
 }
 
-export default function LiveDashboard({ initial }: { initial: LivePageData }) {
+export default function LiveDashboard({ initial }: Readonly<{ initial: LivePageData }>) {
   const [data, setData] = useState(initial)
   const [stale, setStale] = useState(false)
 
@@ -100,11 +100,11 @@ export default function LiveDashboard({ initial }: { initial: LivePageData }) {
 
         {/* Colonne gauche : classement */}
         <aside className="live-sidebar">
-          {!data.isLive ? (
+          {data.isLive ? null : (
             <div className="live-idle">
               <span>{data.emptyState.helper}</span>
             </div>
-          ) : null}
+          )}
 
           <div className="live-section-heading">
             <span>Classement</span>

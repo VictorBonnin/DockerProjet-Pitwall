@@ -40,7 +40,7 @@ export function buildCircuitsIndexModel({
           grandPrixName: weekend.name,
           circuitName: weekend.circuit.name,
           circuitSlug: toCircuitSlug(weekend.circuit.name),
-          locationLabel: `${weekend.circuit.locality ? `${weekend.circuit.locality}, ` : ""}${weekend.country ?? "Unknown"}`,
+          locationLabel: [weekend.circuit.locality, weekend.country ?? "Unknown"].filter(Boolean).join(", "),
           dateLabel: formatDate(weekend.startDate),
           lengthLabel: reference.lengthKm,
           officialImagePath: reference.officialImagePath,

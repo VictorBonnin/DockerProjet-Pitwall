@@ -100,7 +100,7 @@ function formatLapTime(ms: number | null | undefined) {
 function formatGapTime(ms: number | null | undefined) {
   if (ms === null || ms === undefined) return null
   const seconds = ms / 1000
-  const sign = seconds > 0 ? "+" : seconds < 0 ? "-" : "+"
+  const sign = seconds < 0 ? "-" : "+"
   return `${sign}${Math.abs(seconds).toFixed(3)}s`
 }
 
@@ -155,6 +155,12 @@ function buildClassification<T extends { position: number | null }>(
   }
 }
 
+function buildGapLabel(index: number, timeMs: number | null, referenceMs: number | null): string {
+  if (index === 0) return "Pole"
+  if (timeMs !== null && referenceMs !== null) return formatGapTime(timeMs - referenceMs) ?? "Indisponible"
+  return "Indisponible"
+}
+
 export function buildStartingGridRows(results: QualifyingResultLike[]) {
   const orderedSource = results
     .slice()
@@ -176,18 +182,8 @@ export function buildStartingGridRows(results: QualifyingResultLike[]) {
         constructorName: result.constructor.name,
         constructorSlug: result.constructor.slug ?? null,
         qualifyingTimeLabel: getBestQualifyingSegment(result),
-        gapToPoleLabel:
-          index === 0
-            ? "Pole"
-            : timeMs !== null && poleTimeMs !== null
-              ? formatGapTime(timeMs - poleTimeMs)
-              : "Indisponible",
-        gapToAheadLabel:
-          index === 0
-            ? "Pole"
-            : timeMs !== null && aheadTimeMs !== null
-              ? formatGapTime(timeMs - aheadTimeMs)
-              : "Indisponible",
+        gapToPoleLabel: buildGapLabel(index, timeMs, poleTimeMs),
+        gapToAheadLabel: buildGapLabel(index, timeMs, aheadTimeMs),
       }
     })
 
@@ -245,7 +241,7 @@ export function buildRaceWeekendPageModel({
       dateLabel: formatWeekendWindow(weekend.startDate, weekend.endDate),
       roundLabel: `Round ${weekend.round}`,
       seasonLabel: `Saison ${year}`,
-      locationLabel: `${weekend.circuit.locality ? `${weekend.circuit.locality}, ` : ""}${weekend.country ?? weekend.circuit.country}`,
+      locationLabel: [weekend.circuit.locality, weekend.country ?? weekend.circuit.country].filter(Boolean).join(", "),
     },
     circuit: {
       officialImagePath: circuitReference.officialImagePath,

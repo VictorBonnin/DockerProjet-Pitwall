@@ -96,7 +96,7 @@ function buildTitleParts(grandPrixName: string, highlight: string) {
   }
 }
 
-export function HomeLuxury({ home }: HomeLuxuryProps) {
+export function HomeLuxury({ home }: Readonly<HomeLuxuryProps>) {
   const orbitWrapRef = useRef<HTMLDivElement | null>(null)
   const orbitItemRefs = useRef<Array<HTMLDivElement | null>>([])
   const noiseCanvasRef = useRef<HTMLCanvasElement | null>(null)
@@ -186,8 +186,8 @@ export function HomeLuxury({ home }: HomeLuxuryProps) {
     }
 
     const resize = () => {
-      canvas.width = Math.max(1, window.innerWidth)
-      canvas.height = Math.max(1, window.innerHeight)
+      canvas.width = Math.max(1, globalThis.innerWidth)
+      canvas.height = Math.max(1, globalThis.innerHeight)
     }
 
     const generateNoise = () => {
@@ -212,12 +212,12 @@ export function HomeLuxury({ home }: HomeLuxuryProps) {
     resize()
     generateNoise()
 
-    window.addEventListener("resize", resize)
-    const intervalId = window.setInterval(generateNoise, 100)
+    globalThis.addEventListener("resize", resize)
+    const intervalId = globalThis.setInterval(generateNoise, 100)
 
     return () => {
-      window.removeEventListener("resize", resize)
-      window.clearInterval(intervalId)
+      globalThis.removeEventListener("resize", resize)
+      globalThis.clearInterval(intervalId)
     }
   }, [])
 
@@ -237,10 +237,10 @@ export function HomeLuxury({ home }: HomeLuxuryProps) {
     }
 
     updateCountdown()
-    const intervalId = window.setInterval(updateCountdown, 1000)
+    const intervalId = globalThis.setInterval(updateCountdown, 1000)
 
     return () => {
-      window.clearInterval(intervalId)
+      globalThis.clearInterval(intervalId)
     }
   }, [home.landing.countdownTargetIso])
 

@@ -1,9 +1,5 @@
 import { prisma } from "@/lib/db/prisma"
-import type {
-  JolpicaQualifyingResultsPayload,
-  JolpicaRaceResultsPayload,
-  JolpicaSprintResultsPayload,
-} from "@/lib/providers/jolpica"
+import type { JolpicaRaceResultsPayload } from "@/lib/providers/jolpica"
 import {
   getQualifyingResults,
   getRaceResults,
@@ -122,8 +118,8 @@ export function buildSessionResultImportPlan({
   year: number
   round: number
   raceResultsPayload: JolpicaRaceResultsPayload | null
-  qualifyingResultsPayload: JolpicaQualifyingResultsPayload | null
-  sprintResultsPayload: JolpicaSprintResultsPayload | null
+  qualifyingResultsPayload: JolpicaRaceResultsPayload | null
+  sprintResultsPayload: JolpicaRaceResultsPayload | null
 }): SessionResultImportPlan {
   const raceEntries =
     raceResultsPayload?.MRData.RaceTable.Races[0] &&

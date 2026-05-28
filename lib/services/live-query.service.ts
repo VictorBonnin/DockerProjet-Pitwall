@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db/prisma"
 
 type LiveSessionReader = {
-  findCurrentLiveSession?: () => Promise<unknown | null>
+  findCurrentLiveSession?: () => Promise<unknown>
 }
 
 export async function getCurrentLiveSession(

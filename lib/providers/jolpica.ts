@@ -66,9 +66,6 @@ export type JolpicaRaceResultsPayload = {
   }
 }
 
-export type JolpicaQualifyingResultsPayload = JolpicaRaceResultsPayload
-
-export type JolpicaSprintResultsPayload = JolpicaRaceResultsPayload
 
 export async function getSeasonSchedule(year: number) {
   return fetchJson<JolpicaSchedulePayload>(`${JOLPICA_BASE_URL}/${year}.json`)
@@ -93,13 +90,13 @@ export async function getRaceResults(year: number, round: number) {
 }
 
 export async function getQualifyingResults(year: number, round: number) {
-  return fetchJson<JolpicaQualifyingResultsPayload>(
+  return fetchJson<JolpicaRaceResultsPayload>(
     `${JOLPICA_BASE_URL}/${year}/${round}/qualifying.json`,
   )
 }
 
 export async function getSprintResults(year: number, round: number) {
-  return fetchJson<JolpicaSprintResultsPayload>(
+  return fetchJson<JolpicaRaceResultsPayload>(
     `${JOLPICA_BASE_URL}/${year}/${round}/sprint.json`,
   )
 }

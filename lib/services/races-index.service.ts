@@ -37,7 +37,7 @@ export function buildRacesIndexModel({
         status: weekend.status,
         href: `/races/${year}/${weekend.round}`,
         dateLabel: formatDate(weekend.startDate),
-        locationLabel: `${weekend.circuit.locality ? `${weekend.circuit.locality}, ` : ""}${weekend.country ?? "Unknown"}`,
+        locationLabel: [weekend.circuit.locality, weekend.country ?? "Unknown"].filter(Boolean).join(", "),
         circuitName: weekend.circuit.name,
       })),
   }

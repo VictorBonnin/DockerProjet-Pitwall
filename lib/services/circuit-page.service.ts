@@ -93,7 +93,7 @@ export function buildCircuitPageModel({
   return {
     hero: {
       circuitName: circuit.name,
-      locationLabel: `${circuit.locality ? `${circuit.locality}, ` : ""}${circuit.country}`,
+      locationLabel: [circuit.locality, circuit.country].filter(Boolean).join(", "),
       lengthLabel: reference.lengthKm,
       officialImagePath: reference.officialImagePath,
       tracePath: reference.tracePath,
