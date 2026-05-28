@@ -131,6 +131,35 @@ describe("live-session-control service", () => {
     expect(createdRows[0]?.sourceName).toBe("test")
   })
 
+  it("returns null when closing with no open session", async () => {
+    const closed = await closeLiveSession({
+      now: () => new Date(),
+      findExistingOpenLiveSession: async () => null,
+      closeLiveSessionById: async () => { throw new Error("should not be called") },
+    })
+
+    expect(closed).toBeNull()
+  })
+
+  it("throws when OpenF1 session cannot be matched to an internal session", async () => {
+    await expect(
+      openLiveSession(
+        { sessionKey: "latest", ingestFrequencyMs: 5000, sourceName: "test" },
+        {
+          now: () => new Date(),
+          fetchOpenF1Session: async () => [
+            { session_key: 99999, session_name: "Race", session_type: "Race", meeting_name: "Unknown GP", date_start: "2099-01-01T00:00:00+00:00" },
+          ],
+          findExistingOpenLiveSession: async () => null,
+          findSessionByProviderKey: async () => null,
+          findCandidateSessions: async () => [],
+          updateSessionProviderKey: async () => {},
+          createLiveSession: async () => { throw new Error("should not be called") },
+        },
+      ),
+    ).rejects.toThrow("Could not match OpenF1")
+  })
+
   it("closes an open live session", async () => {
     const closedRows: string[] = []
 
