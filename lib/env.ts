@@ -5,6 +5,7 @@ const envSchema = z.object({
   REDIS_URL: z.string().url(),
   JOLPICA_BASE_URL: z.string().url().optional(),
   OPENF1_BASE_URL: z.string().url().optional(),
+  OPENF1_API_KEY: z.string().optional(),
   NODE_ENV: z.enum(["development", "test", "production"]).optional(),
 })
 

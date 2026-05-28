@@ -3,11 +3,15 @@ import { getEnv } from "@/lib/env"
 const OPENF1_BASE_URL = getEnv().OPENF1_BASE_URL ?? "https://api.openf1.org/v1"
 
 async function fetchJson<T>(url: string): Promise<T> {
+  const apiKey = getEnv().OPENF1_API_KEY
+  const headers: Record<string, string> = {
+    Accept: "application/json",
+    "User-Agent": "PitWall/0.1 (+local-dev)",
+  }
+  if (apiKey) headers["Authorization"] = `Bearer ${apiKey}`
+
   const response = await fetch(url, {
-    headers: {
-      Accept: "application/json",
-      "User-Agent": "PitWall/0.1 (+local-dev)",
-    },
+    headers,
     cache: "no-store",
   })
 
