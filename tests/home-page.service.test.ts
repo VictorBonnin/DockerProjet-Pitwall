@@ -91,6 +91,21 @@ describe("home-page service", () => {
     ])
   })
 
+  it("falls back to circuit country when weekend country is null", () => {
+    const weekendNoCountry = {
+      ...scheduledWeekend,
+      country: null as unknown as string,
+    }
+    const model = buildHomePageModel({
+      year: 2025,
+      raceWeekends: [weekendNoCountry],
+      driverStandings: [],
+      constructorStandings: [],
+      liveSession: null,
+    })
+    expect(model.nextGrandPrix.locationLabel).toContain("Monaco")
+  })
+
   it("shows idle state when no live session is active", () => {
     const model = buildHomePageModel({
       year: 2025,

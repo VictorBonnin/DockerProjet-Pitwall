@@ -2,6 +2,24 @@ import { describe, it, expect } from "vitest"
 import { buildRacesIndexModel } from "../lib/services/races-index.service"
 
 describe("races-index service", () => {
+  it("uses Unknown as fallback when country is null", () => {
+    const model = buildRacesIndexModel({
+      year: 2025,
+      weekends: [
+        {
+          round: 1,
+          name: "Test Grand Prix",
+          slug: "2025-01-test",
+          status: "SCHEDULED",
+          country: null as unknown as string,
+          startDate: new Date("2025-03-14T00:00:00Z"),
+          circuit: { name: "Test Circuit", locality: "Melbourne" },
+        },
+      ],
+    })
+    expect(model.items[0]?.locationLabel).toBe("Melbourne, Unknown")
+  })
+
   it("builds a races index model with correct href and location label", () => {
     const model = buildRacesIndexModel({
       year: 2025,

@@ -77,6 +77,19 @@ describe("race-weekend-page service", () => {
     })
   })
 
+  it("uses circuit country as fallback when weekend country is null", () => {
+    const model = buildRaceWeekendPageModel({
+      year: 2025,
+      weekend: { ...weekendFixture, country: null as unknown as string },
+      sessions: [],
+      raceResults: [],
+      qualifyingResults: [],
+      sprintResults: [],
+      bestKnownLap: null,
+    })
+    expect(model.hero.locationLabel).toContain("Australia")
+  })
+
   it("builds a full race weekend page model", () => {
     const model = buildRaceWeekendPageModel({
       year: 2025,

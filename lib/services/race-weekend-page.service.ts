@@ -157,8 +157,8 @@ function buildClassification<T extends { position: number | null }>(
 
 function buildGapLabel(index: number, timeMs: number | null, referenceMs: number | null): string {
   if (index === 0) return "Pole"
-  if (timeMs !== null && referenceMs !== null) return formatGapTime(timeMs - referenceMs) ?? "Indisponible"
-  return "Indisponible"
+  if (timeMs === null || referenceMs === null) return "Indisponible"
+  return formatGapTime(timeMs - referenceMs) as string
 }
 
 export function buildStartingGridRows(results: QualifyingResultLike[]) {

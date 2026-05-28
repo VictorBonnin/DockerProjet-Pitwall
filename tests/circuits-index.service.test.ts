@@ -28,6 +28,22 @@ describe("circuits-index service", () => {
     expect(model.items[0]?.lengthLabel).toBe("5.278 km")
   })
 
+  it("uses Unknown as fallback when country is null", () => {
+    const model = buildCircuitsIndexModel({
+      year: 2025,
+      weekends: [
+        {
+          round: 1,
+          name: "Test Grand Prix",
+          country: null as unknown as string,
+          startDate: new Date("2025-03-14T00:00:00Z"),
+          circuit: { name: "Albert Park Grand Prix Circuit", locality: "Melbourne" },
+        },
+      ],
+    })
+    expect(model.items[0]?.locationLabel).toBe("Melbourne, Unknown")
+  })
+
   it("maps country aliases to correct official images", () => {
     const model = buildCircuitsIndexModel({
       year: 2025,

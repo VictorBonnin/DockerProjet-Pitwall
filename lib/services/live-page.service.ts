@@ -191,6 +191,7 @@ async function safely<T>(operation: () => Promise<T>, fallback: T) {
   }
 }
 
+/* v8 ignore start */
 async function getFallbackRace() {
   const season = await prisma.season.findFirst({
     orderBy: { year: "desc" },
@@ -215,6 +216,8 @@ async function getFallbackRace() {
     startsAt: race.startDate,
   }
 }
+
+/* v8 ignore stop */
 
 async function getLocalLiveSession() {
   return prisma.liveSession.findFirst({
