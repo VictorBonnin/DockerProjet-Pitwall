@@ -7,8 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "tsx tests/run.ts",
-    "test:watch": "tsx watch tests/run.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "assets:official": "tsx scripts/backfill-official-assets.ts",
@@ -31,12 +32,14 @@
     "@types/node": "^22.14.1",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
+    "@vitest/coverage-v8": "^4.1.7",
     "eslint": "^9.24.0",
     "eslint-config-next": "^15.3.0",
     "postcss": "^8.5.3",
     "prisma": "^6.6.0",
     "tailwindcss": "^4.1.4",
     "tsx": "^4.19.4",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^4.1.7"
   }
 }

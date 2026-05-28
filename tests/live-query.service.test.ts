@@ -1,10 +1,12 @@
-import assert from "node:assert/strict"
+import { describe, it, expect } from "vitest"
+import { getCurrentLiveSession } from "@/lib/services/live-query.service"
 
-export async function runLiveQueryServiceTests() {
-  const { getCurrentLiveSession } = await import("@/lib/services/live-query.service")
-  const result = await getCurrentLiveSession({
-    findCurrentLiveSession: async () => null,
+describe("live-query service", () => {
+  it("returns null when no current live session exists", async () => {
+    const result = await getCurrentLiveSession({
+      findCurrentLiveSession: async () => null,
+    })
+
+    expect(result).toBeNull()
   })
-
-  assert.equal(result, null)
-}
+})

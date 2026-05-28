@@ -1,4 +1,10 @@
-import assert from "node:assert/strict"
+import { describe, it, expect } from "vitest"
+import {
+  buildSessionDetailsImportPlan,
+  fetchWithRateLimitRetry,
+  createRequestScheduler,
+  matchOpenF1SessionToInternalSession,
+} from "../lib/services/session-details-sync.service"
 
 const openF1SessionsPayload = [
   {
@@ -49,103 +55,95 @@ const openF1WeatherPayload = [
   },
 ]
 
-export async function runSessionDetailsSyncServiceTests() {
-  const {
-    buildSessionDetailsImportPlan,
-    fetchWithRateLimitRetry,
-    createRequestScheduler,
-    matchOpenF1SessionToInternalSession,
-  } = await import("../lib/services/session-details-sync.service")
+describe("session-details-sync service", () => {
+  it("matches OpenF1 sessions to internal sessions", () => {
+    const match = matchOpenF1SessionToInternalSession({
+      internalSessions: [
+        {
+          id: "session-1",
+          type: "RACE",
+          name: "Race",
+          startsAt: new Date("2025-03-16T04:00:00Z"),
+          raceWeekend: { name: "Australian Grand Prix" },
+        },
+        {
+          id: "session-2",
+          type: "SPRINT",
+          name: "Sprint",
+          startsAt: new Date("2025-03-22T03:00:00Z"),
+          raceWeekend: { name: "Chinese Grand Prix" },
+        },
+      ],
+      openF1Sessions: [
+        ...openF1SessionsPayload,
+        {
+          session_key: 9993,
+          session_type: "Race",
+          session_name: "Sprint",
+          date_start: "2025-03-22T03:00:00+00:00",
+          country_name: "China",
+          location: "Shanghai",
+        },
+      ],
+    })
 
-  const match = matchOpenF1SessionToInternalSession({
-    internalSessions: [
-      {
-        id: "session-1",
-        type: "RACE",
-        name: "Race",
-        startsAt: new Date("2025-03-16T04:00:00Z"),
-        raceWeekend: {
-          name: "Australian Grand Prix",
-        },
-      },
-      {
-        id: "session-2",
-        type: "SPRINT",
-        name: "Sprint",
-        startsAt: new Date("2025-03-22T03:00:00Z"),
-        raceWeekend: {
-          name: "Chinese Grand Prix",
-        },
-      },
-    ],
-    openF1Sessions: [
-      ...openF1SessionsPayload,
-      {
-        session_key: 9993,
-        session_type: "Race",
-        session_name: "Sprint",
-        date_start: "2025-03-22T03:00:00+00:00",
-        country_name: "China",
-        location: "Shanghai",
-      },
-    ],
+    expect(match[0]?.internalSessionId).toBe("session-1")
+    expect(match[0]?.providerSessionKey).toBe(9971)
+    expect(match[1]?.internalSessionId).toBe("session-2")
+    expect(match[1]?.providerSessionKey).toBe(9993)
   })
 
-  assert.equal(match[0]?.internalSessionId, "session-1")
-  assert.equal(match[0]?.providerSessionKey, 9971)
-  assert.equal(match[1]?.internalSessionId, "session-2")
-  assert.equal(match[1]?.providerSessionKey, 9993)
+  it("builds a session details import plan from OpenF1 payloads", () => {
+    const plan = buildSessionDetailsImportPlan({
+      lapsPayload: openF1LapsPayload,
+      pitPayload: openF1PitPayload,
+      weatherPayload: openF1WeatherPayload,
+      driverNumberMap: new Map([[4, "norris"]]),
+    })
 
-  const plan = buildSessionDetailsImportPlan({
-    lapsPayload: openF1LapsPayload,
-    pitPayload: openF1PitPayload,
-    weatherPayload: openF1WeatherPayload,
-    driverNumberMap: new Map([[4, "norris"]]),
+    expect(plan.laps[0]?.driverProviderJolpicaId).toBe("norris")
+    expect(plan.laps[0]?.lapTimeMs).toBe(92345)
+    expect(plan.pitStops[0]?.laneDurationMs).toBe(21456)
+    expect(plan.weatherSamples[0]?.trackTemp).toBe(37.2)
   })
 
-  assert.equal(plan.laps[0]?.driverProviderJolpicaId, "norris")
-  assert.equal(plan.laps[0]?.lapTimeMs, 92345)
-  assert.equal(plan.pitStops[0]?.laneDurationMs, 21456)
-  assert.equal(plan.weatherSamples[0]?.trackTemp, 37.2)
+  it("retries on 429 rate limit error", async () => {
+    let calls = 0
+    const waits: number[] = []
 
-  let calls = 0
-  const waits: number[] = []
-  const value = await fetchWithRateLimitRetry(
-    async () => {
-      calls += 1
-      if (calls === 1) {
-        const error = new Error("Too Many Requests") as Error & { status?: number }
-        error.status = 429
-        throw error
-      }
-      return "ok"
-    },
-    {
-      maxRetries: 2,
-      baseDelayMs: 5,
+    const value = await fetchWithRateLimitRetry(
+      async () => {
+        calls += 1
+        if (calls === 1) {
+          const error = new Error("Too Many Requests") as Error & { status?: number }
+          error.status = 429
+          throw error
+        }
+        return "ok"
+      },
+      { maxRetries: 2, baseDelayMs: 5, sleep: async (delay) => { waits.push(delay) } },
+    )
+
+    expect(value).toBe("ok")
+    expect(calls).toBe(2)
+    expect(waits[0]).toBe(5)
+  })
+
+  it("throttles requests to respect minimum interval", async () => {
+    const schedulerWaits: number[] = []
+    let now = 100
+    const schedule = createRequestScheduler({
+      minIntervalMs: 10,
+      now: () => now,
       sleep: async (delay) => {
-        waits.push(delay)
+        schedulerWaits.push(delay)
+        now += delay
       },
-    },
-  )
+    })
 
-  assert.equal(value, "ok")
-  assert.equal(calls, 2)
-  assert.equal(waits[0], 5)
+    await schedule(async () => "first")
+    await schedule(async () => "second")
 
-  const schedulerWaits: number[] = []
-  let now = 100
-  const schedule = createRequestScheduler({
-    minIntervalMs: 10,
-    now: () => now,
-    sleep: async (delay) => {
-      schedulerWaits.push(delay)
-      now += delay
-    },
+    expect(schedulerWaits[0]).toBe(10)
   })
-
-  await schedule(async () => "first")
-  await schedule(async () => "second")
-
-  assert.equal(schedulerWaits[0], 10)
-}
+})

@@ -1,4 +1,10 @@
-import assert from "node:assert/strict"
+import { describe, it, expect } from "vitest"
+import {
+  buildDisplayGrandPrixName,
+  isRaceWeekendFinished,
+  normalizeGrandPrixLocation,
+  pickNextRaceWeekend,
+} from "@/lib/services/home-luxury.service"
 
 const pastScheduledWeekend = {
   round: 4,
@@ -14,17 +20,26 @@ const futureScheduledWeekend = {
   endDate: new Date("2026-05-24T20:00:00.000Z"),
 }
 
-export async function runHomeLuxuryServiceTests() {
-  const { buildDisplayGrandPrixName, isRaceWeekendFinished, normalizeGrandPrixLocation, pickNextRaceWeekend } = await import(
-    "@/lib/services/home-luxury.service"
-  )
+const now = new Date("2026-05-04T12:00:00.000Z")
 
-  const now = new Date("2026-05-04T12:00:00.000Z")
-  const next = pickNextRaceWeekend([pastScheduledWeekend, futureScheduledWeekend], now)
+describe("home-luxury service", () => {
+  it("picks the next upcoming race weekend", () => {
+    const next = pickNextRaceWeekend([pastScheduledWeekend, futureScheduledWeekend], now)
+    expect(next?.round).toBe(5)
+  })
 
-  assert.equal(next?.round, 5)
-  assert.equal(isRaceWeekendFinished(pastScheduledWeekend, now), true)
-  assert.equal(isRaceWeekendFinished(futureScheduledWeekend, now), false)
-  assert.equal(normalizeGrandPrixLocation("Canadian Grand Prix", "Circuit Gilles Villeneuve", "Canada"), "Canada")
-  assert.equal(buildDisplayGrandPrixName("Canada"), "Grand Prix du Canada")
-}
+  it("correctly identifies finished vs upcoming weekends", () => {
+    expect(isRaceWeekendFinished(pastScheduledWeekend, now)).toBe(true)
+    expect(isRaceWeekendFinished(futureScheduledWeekend, now)).toBe(false)
+  })
+
+  it("normalizes grand prix location to country", () => {
+    expect(
+      normalizeGrandPrixLocation("Canadian Grand Prix", "Circuit Gilles Villeneuve", "Canada"),
+    ).toBe("Canada")
+  })
+
+  it("builds a display grand prix name in French", () => {
+    expect(buildDisplayGrandPrixName("Canada")).toBe("Grand Prix du Canada")
+  })
+})
