@@ -50,6 +50,16 @@ describe("live-session-control service", () => {
     expect(options.sourceName).toBe("status-page")
   })
 
+  it("parses open request body with a numeric session key", () => {
+    const options = parseLiveOpenRequestBody({ sessionKey: 9971, ingestFrequencyMs: 5000 })
+    expect(options.sessionKey).toBe(9971)
+  })
+
+  it("falls back to frequencyMs when ingestFrequencyMs is absent", () => {
+    const options = parseLiveOpenRequestBody({ frequencyMs: 3000 })
+    expect(options.ingestFrequencyMs).toBe(3000)
+  })
+
   it("opens a live session using a local next-session key without calling OpenF1", async () => {
     const locallyCreatedRows: Array<Record<string, unknown>> = []
 
