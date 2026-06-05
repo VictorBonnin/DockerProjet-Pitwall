@@ -22,6 +22,12 @@ const eslintConfig = [
     },
   },
   {
+    files: ["tests/**/*.ts"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+    },
+  },
+  {
     ignores: ["node_modules/**", ".next/**", "coverage/**", "next-env.d.ts"],
   },
 ]
