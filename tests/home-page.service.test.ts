@@ -118,4 +118,67 @@ describe("home-page service", () => {
     expect(model.live.isActive).toBe(false)
     expect(model.live.label).toBe("Aucune session live")
   })
+
+  it("returns null nextGrandPrix when raceWeekends is empty", () => {
+    const model = buildHomePageModel({
+      year: 2025,
+      raceWeekends: [],
+      driverStandings: [],
+      constructorStandings: [],
+      liveSession: null,
+    })
+
+    expect(model.nextGrandPrix).toBeNull()
+  })
+
+  it("returns null nextGrandPrix when all weekends are empty array", () => {
+    expect(pickNextRaceWeekend([])).toBeNull()
+  })
+
+  it("uses 'Ecurie inconnue' when constructor is null on driver standing", () => {
+    const model = buildHomePageModel({
+      year: 2025,
+      raceWeekends: [scheduledWeekend],
+      driverStandings: [
+        { position: 1, points: 0, wins: 0, driver: { fullName: "Unknown", code: null }, constructor: null },
+      ],
+      constructorStandings: [],
+      liveSession: null,
+    })
+
+    expect(model.standings.drivers[0]?.constructorName).toBe("Ecurie inconnue")
+    expect(model.standings.drivers[0]?.href).toBeNull()
+  })
+
+  it("returns null constructor href when slug is null", () => {
+    const model = buildHomePageModel({
+      year: 2025,
+      raceWeekends: [scheduledWeekend],
+      driverStandings: [],
+      constructorStandings: [
+        { position: 1, points: 0, wins: 0, constructor: { name: "Unknown", slug: null, logoPath: null } },
+      ],
+      liveSession: null,
+    })
+
+    expect(model.standings.constructors[0]?.href).toBeNull()
+  })
+
+  it("shows 'Dates a confirmer' when startDate and endDate are both null", () => {
+    const weekendNoDates = {
+      ...scheduledWeekend,
+      startDate: null as unknown as Date,
+      endDate: null as unknown as Date,
+    }
+    const model = buildHomePageModel({
+      year: 2025,
+      raceWeekends: [weekendNoDates],
+      driverStandings: [],
+      constructorStandings: [],
+      liveSession: null,
+    })
+
+    expect(model.nextGrandPrix?.dateLabel).toBe("Dates a confirmer")
+    expect(model.nextGrandPrix?.countdownTargetIso).toBeNull()
+  })
 })

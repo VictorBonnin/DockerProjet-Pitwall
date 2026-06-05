@@ -42,4 +42,52 @@ describe("home-luxury service", () => {
   it("builds a display grand prix name in French", () => {
     expect(buildDisplayGrandPrixName("Canada")).toBe("Grand Prix du Canada")
   })
+
+  it("returns fallback name when location is empty", () => {
+    expect(buildDisplayGrandPrixName("")).toBe("Grand Prix a confirmer")
+  })
+
+  it("builds name with d' prefix for vowel-starting location", () => {
+    expect(buildDisplayGrandPrixName("Australie")).toBe("Grand Prix d’Australie")
+  })
+
+  it("builds name with 'de' prefix for consonant-starting location", () => {
+    expect(buildDisplayGrandPrixName("Monaco")).toBe("Grand Prix de Monaco")
+  })
+
+  it("returns true when weekend status is COMPLETED", () => {
+    expect(isRaceWeekendFinished({ status: "COMPLETED" })).toBe(true)
+  })
+
+  it("returns false when both endDate and startDate are null", () => {
+    expect(isRaceWeekendFinished({ status: "SCHEDULED", endDate: null, startDate: null }, now)).toBe(false)
+  })
+
+  it("returns null when weekends array is empty", () => {
+    expect(pickNextRaceWeekend([])).toBeNull()
+  })
+
+  it("returns last weekend when all are COMPLETED", () => {
+    const w1 = { round: 1, status: "COMPLETED", startDate: null, endDate: null }
+    const w2 = { round: 2, status: "COMPLETED", startDate: null, endDate: null }
+    const result = pickNextRaceWeekend([w1, w2], now)
+    expect(result?.round).toBe(2)
+  })
+
+  it("normalizes location to 'A venir' when all inputs are null/undefined", () => {
+    expect(normalizeGrandPrixLocation(null, null, null)).toBe("A venir")
+  })
+
+  it("falls back to circuitName when name and country are null", () => {
+    expect(normalizeGrandPrixLocation(null, "Albert Park", null)).toBe("Albert Park")
+  })
+
+  it("falls back to country when name is null", () => {
+    expect(normalizeGrandPrixLocation(null, null, "Australia")).toBe("Australia")
+  })
+
+  it("strips sponsor and year tokens from race name", () => {
+    const result = normalizeGrandPrixLocation("Formula 1 AWS 2025 Grand Prix de Monaco", null, "Monaco")
+    expect(result).toBe("Monaco")
+  })
 })
