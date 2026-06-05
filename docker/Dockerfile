@@ -3,6 +3,24 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
+# Stage dédié aux migrations — léger, sans build Next.js
+FROM node:22-alpine AS migrator
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY prisma ./prisma
+RUN npx prisma generate
+CMD ["npx", "prisma", "db", "push"]
+
+FROM node:22-alpine AS seeder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY prisma ./prisma
+COPY lib ./lib
+COPY workers ./workers
+COPY tsconfig.json ./
+RUN npx prisma generate
+CMD ["npx", "tsx", "workers/sync-history.ts"]
+
 FROM node:22-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules

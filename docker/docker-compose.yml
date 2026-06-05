@@ -10,12 +10,72 @@ services:
       - "5432:5432"
     volumes:
       - pitwall_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   redis:
     image: redis:7
     container_name: pitwall-redis
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  migrate:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: migrator
+    container_name: pitwall-migrate
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/pitwall?schema=public
+
+  seed:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: seeder
+    container_name: pitwall-seed
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/pitwall?schema=public
+      REDIS_URL: redis://redis:6379
+      JOLPICA_BASE_URL: https://api.jolpi.ca/ergast/f1
+      OPENF1_BASE_URL: https://api.openf1.org/v1
+
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: pitwall-app
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/pitwall?schema=public
+      REDIS_URL: redis://redis:6379
+      JOLPICA_BASE_URL: https://api.jolpi.ca/ergast/f1
+      OPENF1_BASE_URL: https://api.openf1.org/v1
+    restart: unless-stopped
 
 volumes:
   pitwall_postgres_data:
