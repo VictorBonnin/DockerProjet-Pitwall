@@ -9,4 +9,13 @@ describe("live-query service", () => {
 
     expect(result).toBeNull()
   })
+
+  it("returns the live session when one is found", async () => {
+    const mockSession = { id: "ls1", status: "OPEN" }
+    const result = await getCurrentLiveSession({
+      findCurrentLiveSession: async () => mockSession,
+    })
+
+    expect(result).toEqual(mockSession)
+  })
 })

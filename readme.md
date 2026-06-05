@@ -49,7 +49,6 @@ PitWall est une application web qui centralise et visualise les données de la F
 
 ## Prérequis
 
-- [Node.js 22+](https://nodejs.org)
 - [Docker & Docker Compose](https://docs.docker.com/get-docker/)
 
 ---
@@ -63,60 +62,59 @@ git clone https://github.com/VictorBonnin/DockerProjet-Pitwall.git
 cd DockerProjet-Pitwall
 ```
 
-### 2. Installer les dépendances
+### 2. Lancer le projet
 
 ```bash
-npm install
+docker compose -f docker/docker-compose.yml up --build
 ```
 
-### 3. Configurer les variables d'environnement
+C'est tout. Docker Compose orchestre automatiquement :
+
+1. **PostgreSQL** et **Redis** démarrent avec un healthcheck
+2. **migrate** — applique le schéma Prisma sur la base de données
+3. **seed** — importe les données F1 de la saison en cours depuis Jolpica
+4. **app** — démarre l'application sur [http://localhost:3000](http://localhost:3000)
+
+> Le seed tourne en parallèle de l'application. Les données apparaissent progressivement pendant l'import (quelques minutes). Les prochains `up` re-déclencheront le seed mais les upserts Prisma ne créeront pas de doublons.
+
+### Arrêter et repartir de zéro
 
 ```bash
+# Arrêter sans perdre les données
+docker compose -f docker/docker-compose.yml down
+
+# Arrêter et supprimer la base de données
+docker compose -f docker/docker-compose.yml down -v
+```
+
+---
+
+## Développement local
+
+Pour travailler sur le code sans passer par Docker pour l'application :
+
+**Prérequis supplémentaires :** [Node.js 22+](https://nodejs.org)
+
+```bash
+# 1. Démarrer uniquement PostgreSQL et Redis
+docker compose -f docker/docker-compose.yml up postgres redis -d
+
+# 2. Copier et configurer les variables d'environnement
 cp .env.example .env
-```
 
-Le fichier `.env` par défaut fonctionne sans modification avec Docker Compose.
-
-### 4. Démarrer les services (PostgreSQL + Redis)
-
-```bash
-docker compose -f docker/docker-compose.yml up -d
-```
-
-### 5. Initialiser la base de données
-
-```bash
+# 3. Installer les dépendances et initialiser la base
+npm install
 npm run prisma:generate
 npm run prisma:push
-```
 
-### 6. Lancer l'application en développement
+# 4. Importer les données de la saison en cours
+npm run worker:sync-history
 
-```bash
+# 5. Lancer le serveur de développement
 npm run dev
 ```
 
 L'application est accessible sur [http://localhost:3000](http://localhost:3000).
-
----
-
-## Charger les données F1
-
-Les données ne sont pas présentes au démarrage. Il faut exécuter ces commandes pour les importer.
-
-### Données historiques (saisons, pilotes, résultats)
-
-```bash
-# Importer la saison en cours (ex: 2025)
-npm run worker:sync-static
-npm run worker:sync-history
-```
-
-### Détails de sessions (tours, arrêts au stand, météo)
-
-```bash
-npm run worker:sync-live
-```
 
 ---
 
@@ -133,31 +131,11 @@ npm run worker:sync-live
 | `npm run lint` | Analyse statique du code |
 | `npm run prisma:generate` | Générer le client Prisma |
 | `npm run prisma:push` | Synchroniser le schéma avec la base |
-| `npm run worker:sync-static` | Importer les données de saison |
 | `npm run worker:sync-history` | Importer les résultats historiques |
+| `npm run worker:sync-static` | Importer les données de saison |
 | `npm run worker:sync-live` | Ingestion des données live |
 | `npm run worker:consolidate` | Consolider une session live |
 | `npm run live:open` | Ouvrir une session live manuellement |
-
----
-
-## Déploiement avec Docker
-
-### Build et lancement complet
-
-```bash
-# Construire l'image
-docker build -f docker/Dockerfile -t pitwall .
-
-# Démarrer tous les services
-docker compose -f docker/docker-compose.yml up -d
-
-# Lancer l'application (avec les variables d'environnement)
-docker run -p 3000:3000 \
-  -e DATABASE_URL="postgresql://postgres:postgres@host.docker.internal:5432/pitwall?schema=public" \
-  -e REDIS_URL="redis://host.docker.internal:6379" \
-  pitwall
-```
 
 ---
 
