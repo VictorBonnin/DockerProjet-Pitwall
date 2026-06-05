@@ -44,6 +44,41 @@ describe("circuits-index service", () => {
     expect(model.items[0]?.locationLabel).toBe("Melbourne, Unknown")
   })
 
+  it("returns 'Date a confirmer' when startDate is null", () => {
+    const model = buildCircuitsIndexModel({
+      year: 2025,
+      weekends: [
+        {
+          round: 1,
+          name: "Test Grand Prix",
+          country: "Australia",
+          startDate: null,
+          circuit: { name: "Albert Park Grand Prix Circuit", locality: "Melbourne" },
+        },
+      ],
+    })
+    expect(model.items[0]?.dateLabel).toBe("Date a confirmer")
+  })
+
+  it("returns empty items when weekends array is empty", () => {
+    const model = buildCircuitsIndexModel({ year: 2025, weekends: [] })
+    expect(model.items).toHaveLength(0)
+  })
+
+  it("sorts weekends by round ascending", () => {
+    const model = buildCircuitsIndexModel({
+      year: 2025,
+      weekends: [
+        { round: 3, name: "GP C", country: "C", startDate: null, circuit: { name: "Circuit C", locality: "C" } },
+        { round: 1, name: "GP A", country: "A", startDate: null, circuit: { name: "Circuit A", locality: "A" } },
+        { round: 2, name: "GP B", country: "B", startDate: null, circuit: { name: "Circuit B", locality: "B" } },
+      ],
+    })
+    expect(model.items[0]?.round).toBe(1)
+    expect(model.items[1]?.round).toBe(2)
+    expect(model.items[2]?.round).toBe(3)
+  })
+
   it("maps country aliases to correct official images", () => {
     const model = buildCircuitsIndexModel({
       year: 2025,

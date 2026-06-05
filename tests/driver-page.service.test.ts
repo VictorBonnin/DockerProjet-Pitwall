@@ -92,4 +92,59 @@ describe("driver-page service", () => {
     expect(model.visibleResults.length).toBe(1)
     expect(model.visibleResults[0]?.seasonYear).toBe(2024)
   })
+
+  it("falls back to first available season when selectedSeason is not in results", () => {
+    const model = buildDriverPageModel({
+      driver: driverFixture,
+      standing: standingFixture,
+      raceResults: [
+        {
+          seasonYear: 2025,
+          raceWeekend: { round: 1, name: "Australian Grand Prix", slug: "2025-01-australian-grand-prix" },
+          finishPosition: 1,
+          points: 25,
+        },
+      ],
+      selectedSeason: 2020,
+    })
+
+    expect(model.selectedSeason).toBe(2025)
+  })
+
+  it("returns null selectedSeason and empty visibleResults when raceResults is empty", () => {
+    const model = buildDriverPageModel({
+      driver: driverFixture,
+      standing: standingFixture,
+      raceResults: [],
+    })
+
+    expect(model.availableSeasons).toHaveLength(0)
+    expect(model.selectedSeason).toBeNull()
+    expect(model.visibleResults).toHaveLength(0)
+  })
+
+  it("uses imagePath as fallback when heroImagePath is null", () => {
+    const model = buildDriverPageModel({
+      driver: { ...driverFixture, heroImagePath: null },
+      standing: standingFixture,
+      raceResults: [],
+    })
+
+    expect(model.hero.imagePath).toBe(driverFixture.imagePath)
+  })
+
+  it("returns null team info when standing is null", () => {
+    const model = buildDriverPageModel({
+      driver: driverFixture,
+      standing: null,
+      raceResults: [],
+    })
+
+    expect(model.hero.teamName).toBeNull()
+    expect(model.hero.teamHref).toBeNull()
+    expect(model.hero.teamLogoPath).toBeNull()
+    expect(model.summary.position).toBeNull()
+    expect(model.summary.points).toBe(0)
+    expect(model.summary.wins).toBe(0)
+  })
 })

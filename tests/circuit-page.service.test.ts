@@ -86,4 +86,52 @@ describe("circuit-page service", () => {
     expect(model.history[0]?.winnerName).toBe("Lando Norris")
     expect(model.history[0]?.href).toBe("/races/2025/1")
   })
+
+  it("returns empty history and mostWins when weekends is empty", () => {
+    const model = buildCircuitPageModel({
+      circuit: { id: "c1", name: "Albert Park Grand Prix Circuit", country: "Australia", locality: "Melbourne" },
+      weekends: [],
+    })
+
+    expect(model.history).toHaveLength(0)
+    expect(model.mostWins).toHaveLength(0)
+    expect(model.hero.editionsCount).toBe(0)
+  })
+
+  it("shows 'Aucun vainqueur' when race results are empty", () => {
+    const model = buildCircuitPageModel({
+      circuit: { id: "c1", name: "Albert Park Grand Prix Circuit", country: "Australia", locality: "Melbourne" },
+      weekends: [
+        {
+          round: 1,
+          name: "Australian Grand Prix",
+          startDate: new Date("2025-03-16T00:00:00Z"),
+          season: { year: 2025 },
+          raceResults: [],
+        },
+      ],
+    })
+
+    expect(model.history[0]?.winnerName).toBe("Aucun vainqueur")
+    expect(model.history[0]?.winnerCode).toBeNull()
+    expect(model.mostWins).toHaveLength(0)
+  })
+
+  it("returns 'Date a confirmer' when startDate is null", () => {
+    const model = buildCircuitPageModel({
+      circuit: { id: "c1", name: "Albert Park Grand Prix Circuit", country: "Australia", locality: null },
+      weekends: [
+        {
+          round: 1,
+          name: "Australian Grand Prix",
+          startDate: null,
+          season: { year: 2025 },
+          raceResults: [],
+        },
+      ],
+    })
+
+    expect(model.history[0]?.dateLabel).toBe("Date a confirmer")
+    expect(model.hero.locationLabel).toBe("Australia")
+  })
 })
